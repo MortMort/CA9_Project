@@ -18,7 +18,7 @@ saveFolderName = "matFiles";
 saveFolderPath = "";
 % Ex: saveFolderPath = "C:\repo\mrotr_personal\"; (remember "\" at the end!)
 % (Edit) Set file name of mat file
-matFileName = "Baseline_noturb_fatdOff";
+matFileName = "Baseline_fatdOff_14_16_18";
 
 
 
@@ -39,9 +39,9 @@ matFileName = "Baseline_noturb_fatdOff";
 % 			"Frq = 0.1 Hz"
 % 			];
 simNames = [
-			"baseline";
-			"baselineNoTurb";
-			"FATDoff"
+			"14 m/s";
+			"16 m/s";
+			"18 m/s"
 			];
 
 % (Edit) The names of the .int files (w.o. ".int")
@@ -59,8 +59,8 @@ simNames = [
 % 			   ];
 intFileNames = [
 				"1114a001";
-				"1114a001";
-				"1114a001"
+				"1116a001";
+				"1118a001"
 			   ];
 
 
@@ -93,8 +93,8 @@ simDirArray = [
 				];
 
 simFolders = [	
-				simDirArray(1);
-				simDirArray(2);
+				simDirArray(7);
+				simDirArray(7);
 				simDirArray(7)
 			 ];
 		 
@@ -150,9 +150,9 @@ clc; clear; close all;
 % READ ME!: Write the folder 
 
 % (Edit) Set path to matFiles folder
-dirPath = "C:\repo\mrotr_personal\intFileMatlabAnalysis\matFiles";
+dirPath = "C:\Users\Mrotr\Git\Repos\CA9_Project\intFileMatlabAnalysis\matFiles";
 % (Edit) Set name of the file to load
-loadFileName = "Baseline_noturb_fatdOff";
+loadFileName = "Baseline_fatdOff_14_16_18";
 
 str = strcat(dirPath, "\", loadFileName, ".mat");
 load(str);
@@ -163,15 +163,15 @@ clear dirPath str
 % ---------------------------------
 
 % Init sensor arrays, names, and such
-sensorSetupInit
+sensorSetupInit_senSetup1 % Older setup with fewer sensors
+% sensorSetupInit_senSetup2
 
 
-	
 
 % Free wind, blade pitch, Rotor speed, Generator torque
-f = myfigplot(100, [senID.Vhfree senID.Pi1 senID.Omega senID.GenMom], wantedSims, Xdata, Ydata, titleArray, ylabelArray, simNames, 1, xLimDef1, 0);
-figArray = [figArray f];
-figNameArray = [figNameArray strcat(setupPrefix, "VfreeToMgen.png")];
+% f = myfigplot(100, [senIdx.Vhfree senIdx.Pi1 senIdx.Omega senIdx.GenMom], wantedSims, Xdata, Ydata, titleArray, ylabelArray, simNames, 1, xLimDef1, 0);
+% figArray = [figArray f];
+% figNameArray = [figNameArray strcat(setupPrefix, "VfreeToMgen.png")];
 
 
 
@@ -185,10 +185,8 @@ end
 
 % Create ffts
 for nn = 1:length(Ydata)
-	for ii = sensorIDs
-		Y = abs(fft(Ydata{nn}(:,ii)))/L{nn};
-		sensorDataFFT{nn}(:,ii) = Y(1:((end+1)/2)); % Only one half of fft (up to nyquist frequency)
-	end
+	Y = abs(fft(Ydata{nn}(:,sensorIDs)))/L{nn};
+	sensorDataFFT{nn}(:,sensorIDs) = Y(1:((end+1)/2),:); % Only one half of fft (up to nyquist frequency)
 end
 
 
@@ -204,14 +202,12 @@ figNameArray = [];
 setupPrefix = "";
 % figPlotSetup_tj00
 
-figPlotSetup_generalV2
-
-
+figPlotSetup_tj02
 
 
 %% Export figures
 % ---------------------------------
-figSaveDir = "C:\repo\mrotr_personal\intFileMatlabAnalysis";
+figSaveDir = "C:\Users\Mrotr\Git\Repos\CA9_Project\intFileMatlabAnalysis\";
 createNewFolder = 1;
 % I set the name of the folder where the images are saved to the .mat file
 % name:

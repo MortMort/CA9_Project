@@ -23,7 +23,7 @@ xLimFftDef1 = [0 0.6];
 yLimDef1 = [0 1];
 
 % Free wind, blade pitch, Rotor speed, Generator torque
-f = myfigplot(100, [senIdx.Vhfree senIdx.Pi1 senIdx.Omega senIdx.GenMom], wantedSims, Xdata, Ydata, titleArray, ylabelArray, simNames, 1, xLimDef1, 0);
+f = myfigplot(100, [senIdx.Vhfree senIdx.Pi1 senIdx.Omega senIdx.Power], wantedSims, Xdata, Ydata, titleArray, ylabelArray, simNames, 1, xLimDef1, 0);
 figArray = [figArray f];
 figNameArray = [figNameArray strcat(setupPrefix, "VfreeToMgen.png")];
 
