@@ -22,6 +22,14 @@ figSize.two =	[1 0.25 700 400];
 figSize.three = [1 0.25 700 550];
 figSize.four =	[1 0.25 700 670];
 
+fontSize.leg = 11;
+fontSize.legSmall = 9;
+fontSize.title = 13;
+fontSize.label = 11;
+fontSize.labelSmall = 10;
+
+
+
 % TEMPLATE
 % title('text', 'FontSize', fontSize.title, 'interpreter','latex')
 
@@ -29,10 +37,6 @@ figSize.four =	[1 0.25 700 670];
 figArray = [];
 figNameArray = [];
 
-fontSize.leg = 11;
-fontSize.legSmall = 9;
-fontSize.title = 14;
-fontSize.label = 11;
 
 
 
@@ -46,8 +50,7 @@ ylim([-2 5])
 title('LQI pitch angle reference', 'FontSize', fontSize.title, 'interpreter','latex')
 legend('$\theta$', '$\theta_{deriv}$', 'FontSize', fontSize.leg, 'interpreter','latex')
 ylabel(["Angle [deg]", "Angle/s [deg/s]"], 'FontSize', fontSize.label, 'interpreter','latex')
-
-
+xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
 
 subplot(223)
 plot(nt, simData.getElement('u_bar_thRef_lqi').Values.Data)
@@ -58,8 +61,7 @@ title(sprintf('Zoom T = %.0f:%.0f s',tstart, tend), 'FontSize', 12, 'interpreter
 xlim([tstart tend])
 % legend('$\theta$', '$\theta_{deriv}$', 'FontSize', fontSize.leg, 'interpreter','latex')
 ylabel(["Angle [deg]", "Angle/s [deg/s]"], 'FontSize', fontSize.label, 'interpreter','latex')
-
-
+xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
 
 subplot(224)
 plot(nt, simData.getElement('u_bar_thRef_lqi').Values.Data)
@@ -70,9 +72,11 @@ title(sprintf('Zoom T = %.0f:%.0f s',tstart, tend), 'FontSize', 12, 'interpreter
 xlim([tstart tend])
 % legend('$\theta$', '$\theta_{deriv}$', 'location', 'southeast', 'FontSize', fontSize.leg, 'interpreter','latex')
 ylabel(["Angle [deg]", "Angle/s [deg/s]"], 'FontSize', fontSize.label, 'interpreter','latex')
+xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
 
 figArray = [figArray f];
 figNameArray = [figNameArray "01_pitch"];
+
 
 
 f = myfig(2, figSize.three);
@@ -84,6 +88,8 @@ xline(300, '--', {'vfree', 'step'}, 'interpreter','latex', 'LabelOrientation', .
 				'horizontal', 'LabelVerticalAlignment','bottom');
 title('Rotor speed', 'FontSize', fontSize.title, 'interpreter','latex')
 ylabel('Angular velocity [rpm]', 'FontSize', fontSize.label, 'interpreter','latex')
+xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
+
 legend('FLC PI', 'LQI', 'FontSize', fontSize.legSmall, 'interpreter','latex')
 
 subplot(312)
@@ -94,6 +100,7 @@ xline(300, '--', {'vfree', 'step'}, 'interpreter','latex', 'LabelOrientation', .
 				'horizontal', 'LabelVerticalAlignment','bottom');
 title('Surge direction position', 'FontSize', fontSize.title, 'interpreter','latex')
 ylabel('Position [m]', 'FontSize', fontSize.label, 'interpreter','latex')
+xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
 % legend('FLC PI', 'LQI', 'FontSize', fontSize.legSmall, 'interpreter','latex')
 
 subplot(313)
@@ -104,10 +111,12 @@ xline(300, '--', {'vfree', 'step'}, 'interpreter','latex', 'LabelOrientation', .
 				'horizontal', 'LabelVerticalAlignment','bottom');
 title('Surge direction velocity', 'FontSize', fontSize.title, 'interpreter','latex')
 ylabel('Velocity [m/s]', 'FontSize', fontSize.label, 'interpreter','latex')
+xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
 % legend('FLC PI', 'LQI', 'FontSize', fontSize.legSmall, 'interpreter','latex')
 
 figArray = [figArray f];
 figNameArray = [figNameArray "02_W_py_vy_comp"];
+
 
 
 f = myfig(3, figSize.three);
@@ -122,6 +131,7 @@ xline(300, '--', {'vfree', 'step'}, 'interpreter','latex', 'LabelOrientation', .
 title(sprintf('Rotor speed zoomed at T = %.0f:%.0f',tstart,tend), 'FontSize', ...
 				fontSize.title, 'interpreter','latex')
 ylabel('Angular velocity [rpm]', 'FontSize', fontSize.label, 'interpreter','latex')
+xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
 legend('FLC PI', 'LQI', 'FontSize', fontSize.legSmall, 'interpreter','latex')
 
 subplot(312)
@@ -134,6 +144,7 @@ xline(300, '--', {'vfree', 'step'}, 'interpreter','latex', 'LabelOrientation', .
 title(sprintf('Surge direction position zoomed at T = %.0f:%.0f',tstart,tend), ...
 				'FontSize', fontSize.title, 'interpreter','latex')
 ylabel('Position [m]', 'FontSize', fontSize.label, 'interpreter','latex')
+xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
 % legend('FLC PI', 'LQI', 'FontSize', fontSize.legSmall, 'interpreter','latex')
 
 subplot(313)
@@ -146,6 +157,7 @@ xline(300, '--', {'vfree', 'step'}, 'interpreter','latex', 'LabelOrientation', .
 title(sprintf('Surge direction velocity zoomed at T = %.0f:%.0f',tstart,tend), ...
 				'FontSize', fontSize.title, 'interpreter','latex')
 ylabel('Velocity [m/s]', 'FontSize', fontSize.label, 'interpreter','latex')
+xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
 % legend('FLC PI', 'LQI', 'FontSize', fontSize.legSmall, 'interpreter','latex')
 
 figArray = [figArray f];
@@ -238,10 +250,10 @@ figNameArray = [figNameArray "03_W_py_vy_comp_zoom"];
 % ---------------------------------
 try
 	% Path to folder on windows
-	figSaveDir = "c:\Users\Mrotr\Git\Repos\CA9_Writings\Graphics\TestResults\foreaftFitting"; % Windows type path
+	figSaveDir = "c:\Users\Mrotr\Git\Repos\CA9_Writings\Graphics\TestResults\linearModPerf"; % Windows type path
 catch exception
 	% Set path to git folder on mac
-	figSaveDir = "c:\Users\Mrotr\Git\Repos\CA9_Writings\Graphics\TestResults\foreaftFitting"; % Windows type path
+	figSaveDir = "c:\Users\Mrotr\Git\Repos\CA9_Writings\Graphics\TestResults\linearModPerf"; % Windows type path
 end
 
 exportFileType = ".png";
