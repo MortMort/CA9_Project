@@ -46,7 +46,7 @@ subplot(211)
 plot(nt, simData.getElement('u_bar_thRef_lqi').Values.Data)
 hold on
 plot(nt, simData.getElement('u_bar_thRef_deriv_lqi').Values.Data)
-ylim([-2 5])
+ylim([-3 10])
 title('LQI pitch angle reference', 'FontSize', fontSize.title, 'interpreter','latex')
 legend('$\theta$', '$\theta_{deriv}$', 'FontSize', fontSize.leg, 'interpreter','latex')
 ylabel(["Angle [deg]", "Angle/s [deg/s]"], 'FontSize', fontSize.label, 'interpreter','latex')
@@ -70,6 +70,7 @@ plot(nt, simData.getElement('u_bar_thRef_deriv_lqi').Values.Data)
 tstart = 295; tend = 360; % Xlim start for zoom 2
 title(sprintf('Zoom T = %.0f:%.0f s',tstart, tend), 'FontSize', 12, 'interpreter','latex')
 xlim([tstart tend])
+ylim([-1 4])
 % legend('$\theta$', '$\theta_{deriv}$', 'location', 'southeast', 'FontSize', fontSize.leg, 'interpreter','latex')
 ylabel(["Angle [deg]", "Angle/s [deg/s]"], 'FontSize', fontSize.label, 'interpreter','latex')
 xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
@@ -248,12 +249,12 @@ figNameArray = [figNameArray "03_W_py_vy_comp_zoom"];
 
 % Export figures
 % ---------------------------------
-try
+if ispc % <- checks if the script is run on a windows computer
 	% Path to folder on windows
 	figSaveDir = "c:\Users\Mrotr\Git\Repos\CA9_Writings\Graphics\TestResults\linearModPerf"; % Windows type path
-catch exception
+else % I'm using my mac so use the path from it.
 	% Set path to git folder on mac
-	figSaveDir = "c:\Users\Mrotr\Git\Repos\CA9_Writings\Graphics\TestResults\linearModPerf"; % Windows type path
+	figSaveDir = "/Users/martin/Documents/Git/Repos/CA9_Writings/Graphics/TestResults/linearModPerf"; % Windows type path
 end
 
 exportFileType = ".png";
