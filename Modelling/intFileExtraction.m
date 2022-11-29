@@ -57,7 +57,7 @@ end
 cd(currentDir);
 
 % Save simulation data
-save('intFileData.mat', "GenInfo", "Xdata", "Ydata");
+save('intFileData.mat', "GenInfo", "Xdata", "Ydata", "senIdx");
 
 
 % Plotting
