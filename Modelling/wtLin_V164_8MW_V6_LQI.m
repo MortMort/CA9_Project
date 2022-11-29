@@ -70,9 +70,23 @@ figArray = [];
 figNameArray = [];
 
 
-%% Load .int file VTS simulation data for the linear simulations:
 
+%% Simulation setup
+% -----------------
+
+% Load .int file VTS simulation data for the linear simulations:
 load('intFileData.mat')
+
+fs = 25;							% Sample frequencye
+Ts = 1/fs;							% Sample period
+nT = (0:length(Xdata{1})-1) * Ts;	% Time index
+
+
+% Timetable for data input to simulink
+% -----------------
+vfree = Ydata{1}(:,senIdx.Vhfree);
+tt_vfree = timetable(seconds(Xdata{1,1}), vfree);
+
 
 %% Baseline System w. FLC PI
 % =========================================================================

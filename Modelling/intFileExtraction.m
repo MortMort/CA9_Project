@@ -56,9 +56,6 @@ end
 % Go back to original dir
 cd(currentDir);
 
-% Save simulation data
-save('intFileData.mat', "GenInfo", "Xdata", "Ydata", "senIdx");
-
 
 % Plotting
 % ---------------------------------------
@@ -72,29 +69,18 @@ run C:\repo\mrotr_personal\intFileMatlabAnalysis\sensorSetupInit
 % - Generator speed reference
 % - Power reference
 % - FLC Pitch position reference
-wantedSims = [1 2];
-f = myfigplot(100, [senIdx.pnt413 senIdx.pfo017, senIdx.pft105], wantedSims, Xdata, Ydata, titleArray, ylabelArray, simNames, 1, 0, 0);
-% For exporting figures:
-% figArray = [figArray f]; 
-% figNameArray = [figNameArray strcat(setupPrefix, "figurename.png")]; %
-wantedSims = [1 2];
-f = myfigplot(101, [senIdx.Vhfree], wantedSims, Xdata, Ydata, titleArray, ylabelArray, simNames, 1, 0, 0);
+% wantedSims = [1 2];
+% f = myfigplot(100, [senIdx.pnt413 senIdx.pfo017, senIdx.pft105], wantedSims, Xdata, Ydata, titleArray, ylabelArray, simNames, 1, 0, 0);
 % For exporting figures:
 % figArray = [figArray f]; 
 % figNameArray = [figNameArray strcat(setupPrefix, "figurename.png")]; %
 
-
-% Simulation setup
-% -----------------
-fs = 25;	% Sample frequencye
-Ts = 1/fs;	% Sample period
-nT = (0:length(Xdata{1})-1) * Ts;	% Time index
+% f = myfigplot(101, [senIdx.Vhfree], wantedSims, Xdata, Ydata, titleArray, ylabelArray, simNames, 1, 0, 0);
+% For exporting figures:
+% figArray = [figArray f]; 
+% figNameArray = [figNameArray strcat(setupPrefix, "figurename.png")]; %
 
 
-% Timetable for data input to simulink
-% -----------------
 
-%
-vfree = Ydata{1}(:,senIdx.Vhfree);
-tt_vfree = timetable(seconds(Xdata{1,1}), vfree);
-
+% Save simulation data
+save('intFileData.mat', "GenInfo", "Xdata", "Ydata", "senIdx");
