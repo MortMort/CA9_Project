@@ -777,8 +777,8 @@ Ti = Kp/(1/38.2 * 2*pi/60 * Klqi(4));
 
 %% Export figures
 % ---------------------------------
-figSaveDir = "H:\Offshore_TEMP\USERS\MROTR\wtLinWork";		% Windows type path
-% figSaveDir = "H:/Offshore_TEMP/USERS/MROTR/wtLinWork";	% Macos type path
+% figSaveDir = "H:\Offshore_TEMP\USERS\MROTR\wtLinWork";						% Windows type path
+figSaveDir = "/Users/martin/Documents/Git/Repos/CA9_Project/Modelling";	% Macos type path
 createNewFolder = 1; % Folder name to save figures:
 folderName = "figuerExport";
 resolution = 400;
@@ -788,8 +788,13 @@ myfigexport(figSaveDir, figArray, figNameArray, createNewFolder, folderName, res
 %% Save to a .mat file so i can use the data at home:
 
 close all
-save("c:\Users\Mrotr\Git\Repos\CA9_Project\Modelling\wtLinScriptData.mat")
-
+if ispc
+	% Windows PC
+	save("c:\Users\Mrotr\Git\Repos\CA9_Project\Modelling\wtLinScriptData.mat")
+else
+	% Mac
+	save("/Users/martin/Documents/Git/Repos/CA9_Project/Modelling/wtLinScriptData.mat")
+end
 
 %% Functions
 % =========================================================================
