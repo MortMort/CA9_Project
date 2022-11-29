@@ -14,7 +14,8 @@ clear; clc
 % See "wtLin Quick Guide" in DMS 0063-0328
 
 % Edit path to your repo
-addpath('h:\Offshore_TEMP\USERS\MROTR\wtLin_tool\')
+% addpath('h:\Offshore_TEMP\USERS\MROTR\wtLin_tool\')
+addpath('../wtLin_tool/') % Macos path
 
 
 % Symbols and units
