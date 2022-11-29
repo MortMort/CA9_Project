@@ -385,15 +385,14 @@ sys.noFLC.OutputName
 
 % State weighting matrix
 
-% Using brysons rule to determine Q. 
+% Using brysons rule to determine Q.
 
 % V1 tuning parameters:
 % var_Omega = (0.1)^2;	% Permitted variance of Omega in [rpm]
 % var_py = 1^2;		% Permitted variance of py in [m]
 % var_vy = 0.5^2;		% Permitted variance of vy in [m/s]
-
 % V2 tuning parameters:
-v_W = 0.25^2; v_py = 3^2; v_vy = 0.5^2; v_Wi = v_W * 10;
+v_W = 0.2^2; v_py = 3^2; v_vy = 0.5^2; v_Wi = (0.2 * 5)^2;
 var_Omega	= v_W;	% Permitted variance of Omega in [rpm]
 var_py		= v_py;	% Permitted variance of py in [m]
 var_vy		= v_vy;	% Permitted variance of vy in [m/s]
@@ -488,7 +487,7 @@ sysLQR.evaluation_full_1 = ss_sys_evaluation(sysLQR.full_1.A, sysLQR.full_1.B, .
 % step(sysLQR.vfree_pyvyW)
 % title('Sys w. LQR: Step from vfree -> py, vy and W')
 
-%% System: LQI
+% System: LQI
 
 % Construct a C matrix which only picks out the rotor speed (W)
 CintW = [0 0 1];
@@ -552,59 +551,59 @@ SysLQI.full.D, "System LQI");
 
 
 % vfree -> vy
-myfig(540, [0.6 0.25 700 500]);
-[mag,phase,wout] = bode(SysLQI.vfree_vy);
-
-subplot(2,1,1)
-semilogx(rad2hz(wout), mag2db(squeeze(mag)))
-title('Bode of linear model with LQI: vfree -> vy)')
-xlim([10^(-2) 0.3])
-ylim([-60 -10])
-ylabel('Magnitude [dB]')
-grid
-
-subplot(2,1,2)
-semilogx(rad2hz(wout), squeeze(phase))
-xlim([10^(-2) 0.3])
-xlabel('Frequency [Hz]')
-ylabel('Phase [deg]')
-grid
-
-% vfree -> W
-myfig(541, [0.6 0.25 700 500]);
-[mag,phase,wout] = bode(SysLQI.vfree_W);
-
-subplot(2,1,1)
-semilogx(rad2hz(wout), mag2db(squeeze(mag)))
-title('Bode of linear model with LQI: vfree -> W')
-xlim([10^(-2) 0.3])
-ylim([-60 -10])
-ylabel('Magnitude [dB]')
-grid
-
-subplot(2,1,2)
-semilogx(rad2hz(wout), squeeze(phase))
-xlim([10^(-2) 0.3])
-xlabel('Frequency [Hz]')
-ylabel('Phase [deg]')
-grid
+% myfig(540, [0.6 0.25 700 500]);
+% [mag,phase,wout] = bode(SysLQI.vfree_vy);
+% 
+% subplot(2,1,1)
+% semilogx(rad2hz(wout), mag2db(squeeze(mag)))
+% title('Bode of linear model with LQI: vfree -> vy)')
+% xlim([10^(-2) 0.3])
+% ylim([-60 -10])
+% ylabel('Magnitude [dB]')
+% grid
+% 
+% subplot(2,1,2)
+% semilogx(rad2hz(wout), squeeze(phase))
+% xlim([10^(-2) 0.3])
+% xlabel('Frequency [Hz]')
+% ylabel('Phase [deg]')
+% grid
+% 
+% % vfree -> W
+% myfig(541, [0.6 0.25 700 500]);
+% [mag,phase,wout] = bode(SysLQI.vfree_W);
+% 
+% subplot(2,1,1)
+% semilogx(rad2hz(wout), mag2db(squeeze(mag)))
+% title('Bode of linear model with LQI: vfree -> W')
+% xlim([10^(-2) 0.3])
+% ylim([-60 -10])
+% ylabel('Magnitude [dB]')
+% grid
+% 
+% subplot(2,1,2)
+% semilogx(rad2hz(wout), squeeze(phase))
+% xlim([10^(-2) 0.3])
+% xlabel('Frequency [Hz]')
+% ylabel('Phase [deg]')
+% grid
 
 % Bode full system
-myfig(542);
-bode(SysLQI.full)
-title('Bode of linear model with LQI: Full system')
+% myfig(542);
+% bode(SysLQI.full)
+% title('Bode of linear model with LQI: Full system')
 
 % Bode vfree -> py, vy and W
-myfig(543);
-bode(SysLQI.vfree_pyvyW)
-title('Bode of linear model with LQI: vfree -> py, vy and W')
+% myfig(543);
+% bode(SysLQI.vfree_pyvyW)
+% title('Bode of linear model with LQI: vfree -> py, vy and W')
 
 % Step vfree -> py, vy and W
-myfig(544);
-step(SysLQI.vfree_pyvyW)
-title('Step of linear model with LQI: vfree -> py, vy and W')
+% myfig(544);
+% step(SysLQI.vfree_pyvyW)
+% title('Step of linear model with LQI: vfree -> py, vy and W')
 
-%% System: LQR/LQI approach 2
+% System: LQR/LQI approach 2
 % In this section i make a controller for the system
 % in the classical state space way in stead of going for making a
 % component.
@@ -663,13 +662,13 @@ eval = ss_sys_evaluation(SysLQR2.A, SysLQR2.B, SysLQR2.C, SysLQR2.D, "System wit
 
 % Plotting
 
-myfig(560);
-step(SysLQR2)
-title('Sys w. LQR V2 full system')
-
-myfig(561);
-bode(SysLQR2)
-title('Sys w. LQR V2: Bode LQR V2 full system')
+% myfig(560);
+% step(SysLQR2)
+% title('Sys w. LQR V2 full system')
+% 
+% myfig(561);
+% bode(SysLQR2)
+% title('Sys w. LQR V2: Bode LQR V2 full system')
 
 
 % Simulation setup (for simulink) (LQR)
@@ -714,14 +713,14 @@ eval = ss_sys_evaluation(SysLQI2.A, SysLQI2.B, SysLQI2.C, SysLQI2.D, "System wit
 
 
 % Plotting
-
-myfig(580);
-step(SysLQI2)
-title('Sys w. LQR V2 full system')
-
-myfig(581);
-bode(SysLQI2)
-title('Sys w. LQR V2: Bode LQR V2 full system')
+% 
+% myfig(580);
+% step(SysLQI2)
+% title('Sys w. LQR V2 full system')
+% 
+% myfig(581);
+% bode(SysLQI2)
+% title('Sys w. LQR V2: Bode LQR V2 full system')
 
 
 
@@ -737,34 +736,34 @@ x_bar_init_lqi = [py_init vy_init W_init 0]';
 
 %% Discritisation of LQI system
 
-SysnoFLC2_d = c2d(SysnoFLC2, Ts ,'zoh')
-
-% Check for stability:
-if abs(eig(SysnoFLC2_d)) <= 1
-	disp('Discrete system "SysnoFLC2" is stable')
-else
-	disp('Discrete system "SysnoFLC2" is NOT stable')
-end
-
-
-sysINT_d = c2d(ss(Alqi, [Bdlqi Bulqi], Clqi, 0), Ts, 'tustin');
-
-Alqi_d = sysINT_d.A;
-Bdlqi_d = sysINT_d.B(:,distIndex);
-Bulqi_d = sysINT_d.B(:,distIndex+1:end);
-Clqi_d = sysINT_d.C; % Due to 'tustin' method it's not just eye().. If 'zoh'
-					% method is used then it's = Clqi which is eye()
-
-% Deriving discrete system manually:
-Alqi_d2 = Alqi*Ts + eye(length(Alqi));
-Bdlqi_d2 = Bdlqi*Ts;
-Bulqi_d2 = Bulqi*Ts;
-
-
-% Calculate LQI gains
-[Klqi_d, S, P] = dlqr(Alqi_d, Bulqi_d, Qlqi, R, 0);
-
-Klqi_d
+% SysnoFLC2_d = c2d(SysnoFLC2, Ts ,'zoh')
+% 
+% % Check for stability:
+% if abs(eig(SysnoFLC2_d)) <= 1
+% 	disp('Discrete system "SysnoFLC2" is stable')
+% else
+% 	disp('Discrete system "SysnoFLC2" is NOT stable')
+% end
+% 
+% 
+% sysINT_d = c2d(ss(Alqi, [Bdlqi Bulqi], Clqi, 0), Ts, 'tustin');
+% 
+% Alqi_d = sysINT_d.A;
+% Bdlqi_d = sysINT_d.B(:,distIndex);
+% Bulqi_d = sysINT_d.B(:,distIndex+1:end);
+% Clqi_d = sysINT_d.C; % Due to 'tustin' method it's not just eye().. If 'zoh'
+% 					% method is used then it's = Clqi which is eye()
+% 
+% % Deriving discrete system manually:
+% Alqi_d2 = Alqi*Ts + eye(length(Alqi));
+% Bdlqi_d2 = Bdlqi*Ts;
+% Bulqi_d2 = Bulqi*Ts;
+% 
+% 
+% % Calculate LQI gains
+% [Klqi_d, S, P] = dlqr(Alqi_d, Bulqi_d, Qlqi, R, 0);
+% 
+% Klqi_d
 
 
 %% Calculating the FLC Kp, Ti parameters and the FATD Kpos Kvel gains:
@@ -777,7 +776,7 @@ Ti = Kp/(1/38.2 * 2*pi/60 * Klqi(4));
 
 %% Export figures
 % ---------------------------------
-% figSaveDir = "H:\Offshore_TEMP\USERS\MROTR\wtLinWork";						% Windows type path
+% figSaveDir = "H:\Offshore_TEMP\USERS\MROTR\wtLinWork";				% Windows type path
 figSaveDir = "/Users/martin/Documents/Git/Repos/CA9_Project/Modelling";	% Macos type path
 createNewFolder = 1; % Folder name to save figures:
 folderName = "figuerExport";
@@ -786,15 +785,15 @@ myfigexport(figSaveDir, figArray, figNameArray, createNewFolder, folderName, res
 
 
 %% Save to a .mat file so i can use the data at home:
-
-close all
-if ispc
-	% Windows PC
-	save("c:\Users\Mrotr\Git\Repos\CA9_Project\Modelling\wtLinScriptData.mat")
-else
-	% Mac
-	save("/Users/martin/Documents/Git/Repos/CA9_Project/Modelling/wtLinScriptData.mat")
-end
+% 
+% close all
+% if ispc
+% 	% Windows PC
+% 	save("c:\Users\Mrotr\Git\Repos\CA9_Project\Modelling\wtLinScriptData.mat")
+% else
+% 	% Mac
+% 	save("/Users/martin/Documents/Git/Repos/CA9_Project/Modelling/wtLinScriptData.mat")
+% end
 
 %% Functions
 % =========================================================================
