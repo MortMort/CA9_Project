@@ -14,8 +14,13 @@ clear; clc
 % See "wtLin Quick Guide" in DMS 0063-0328
 
 % Edit path to your repo
-% addpath('h:\Offshore_TEMP\USERS\MROTR\wtLin_tool\')
-addpath('../wtLin_tool/') % Macos path
+if ispc
+	addpath('h:\Offshore_TEMP\USERS\MROTR\wtLin_tool\')
+else
+	% Mac
+	addpath('../wtLin_tool/') % (Relative) Macos path
+end
+
 
 
 % Symbols and units
@@ -84,8 +89,7 @@ nT = (0:length(Xdata{1})-1) * Ts;	% Time index
 
 % Timetable for data input to simulink
 % -----------------
-vfree = Ydata{1}(:,senIdx.Vhfree);
-tt_vfree = timetable(seconds(Xdata{1,1}), vfree);
+tt_vfree = timetable(seconds(Xdata{1,1}), Ydata{1}(:,senIdx.Vhfree));
 
 
 %% Baseline System w. FLC PI
@@ -121,12 +125,9 @@ sys.vfree_W = connect(c.FLC, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, c.ro
 sys.evaluation_full = ss_sys_evaluation(sys.full.A, sys.full.B, sys.full.C, ...
 	sys.full.D, "Original system w. FLC PI");
 
-% myfig(50);
-% pzmap(sys.wRef_vy)
-% title('Sys: Pzmap wRef -> vy')
 
 % wRef -> w
-f = myfig(51, [0.2 0.25 700 500]);
+f = myfig(50, [0.2 0.25 700 500]);
 [mag,phase,wout] = bode(sys.wRef_w);
 
 subplot(2,1,1)
@@ -150,7 +151,7 @@ figArray = [figArray f];
 figNameArray = [figNameArray strcat("wtLin_wRef-w_", string(opWindSpeed), "ms", ".png")];
 
 % wRef -> vy
-f = myfig(52, [0.6 0.25 700 500]);
+f = myfig(51, [0.6 0.25 700 500]);
 [mag,phase,wout] = bode(sys.wRef_vy);
 
 subplot(2,1,1)
@@ -174,7 +175,7 @@ figArray = [figArray f];
 figNameArray = [figNameArray strcat("wtLin_wRef-vy_", string(opWindSpeed), "ms", ".png")];
 
 % vfree -> vy
-myfig(53, [0.6 0.25 700 500]);
+myfig(52, [0.6 0.25 700 500]);
 [mag,phase,wout] = bode(sys.vfree_vy);
 
 subplot(2,1,1)
@@ -194,7 +195,7 @@ grid
 
 
 % vfree -> W
-myfig(54, [0.6 0.25 700 500]);
+myfig(53, [0.6 0.25 700 500]);
 [mag,phase,wout] = bode(sys.vfree_W);
 
 subplot(2,1,1)
@@ -214,7 +215,7 @@ grid
 
 
 % th -> w
-f = myfig(55, [0.6 0.25 700 500]);
+f = myfig(54, [0.6 0.25 700 500]);
 [mag,phase,wout] = bode(sys.th_vy);
 
 subplot(2,1,1)
@@ -244,7 +245,7 @@ figNameArray = [figNameArray strcat("wtLin_th-vy_", string(opWindSpeed), "ms", "
 
 
 % Step from wRef -> w (No error is present due to integrator in FLC)
-myfig(56);
+myfig(55);
 step(sys.wRef_w)
 
 
@@ -258,9 +259,7 @@ step(sys.wRef_w)
 Asys = sys.full.A
 Bsys = sys.full.B
 Csys = sys.full.C % W -> w is the product of rad/s -> rpm and 38.2 gear ratio
-
 Dsys = sys.full.D;	% Is zero
-
 
 sys.full.StateName{1} = 'FLCint'; % First state must be FLC integrator state
 sys.full.StateName
@@ -292,9 +291,9 @@ u_op = [opWindSpeed; simulationData(1,senIdx.pnt413)];
 x = zeros(length(sys.full.StateName),length(Xdata{1}));
 
 % Operating point (these are used in the LQR and LQI sims also)
-py_op = 10;
+py_op = 10; % The turbine has been observed oscillating around a mean of 10m
 vy_op = 0;
-W_op = 10;
+W_op = lp.s.stat.genSpd * 1/lp.s.mp.drt.GearRatio * pi/30; % genSpd -> rotSpd 
 x_op_temp_flc = [0 py_op vy_op W_op]';
 
 % Init away from the operating point (these are used in the LQR and LQI sims also)
@@ -353,9 +352,9 @@ Dsys_d2 = Dsys;
 
 % Check for stability:
 if abs(eig(Asys_d)) <= 1
-	disp('Discrete system "SysnoFLC2" is stable')
+	disp('Discrete system "sysNoFLC2" is stable')
 else
-	disp('Discrete system "SysnoFLC2" is NOT stable')
+	disp('Discrete system "sysNoFLC2" is NOT stable')
 end
 
 
@@ -386,16 +385,12 @@ sys.noFLC.OutputName
 % State weighting matrix
 
 % Using brysons rule to determine Q.
-
-% V1 tuning parameters:
-% var_Omega = (0.1)^2;	% Permitted variance of Omega in [rpm]
-% var_py = 1^2;		% Permitted variance of py in [m]
-% var_vy = 0.5^2;		% Permitted variance of vy in [m/s]
-% V2 tuning parameters:
-v_W = 0.2^2; v_py = 3^2; v_vy = 0.5^2; v_Wi = (0.2 * 5)^2;
-var_Omega	= v_W;	% Permitted variance of Omega in [rpm]
-var_py		= v_py;	% Permitted variance of py in [m]
-var_vy		= v_vy;	% Permitted variance of vy in [m/s]
+% The below variables (e.g. s_W represent the max value deviation from the
+% operating point)
+s_W = 2; s_py = 2; s_vy = 0.5; s_Wi = s_W*5; s_th = 5;
+var_Omega	= (s_W * (2*pi)/60)^2;	% Permitted variance of Omega in [rad/s]
+var_py		= s_py^2;				% Permitted variance of py in [m]
+var_vy		= s_vy^2;				% Permitted variance of vy in [m/s]
 Qlqr = [1/var_py	0			0
 		0			1/var_vy	0
 		0			0			1/var_Omega];
@@ -403,7 +398,7 @@ Qlqr = [1/var_py	0			0
 % Input weighting
 
 % var_th = 1^2; % V1 tuning parameter
-var_th = 5^2; % V2 tuning parameter
+var_th = s_th^2; % V2 tuning parameter
 R = 1/var_th;
 
 
@@ -501,7 +496,7 @@ Di = 0;
 
 % Currently the same weighting of py, vy and W are used with the
 % integrator. This might not be the best way to go about it.
-var_OmegaInt = v_Wi; % 10 times lower wighting of integrator state
+var_OmegaInt = (s_Wi * (2*pi)/60)^2; % rad/s -> rpm weight
 Qlqi = [1/var_py	0			0				0
 	0			1/var_vy	0				0
 	0			0			1/var_Omega		0
@@ -520,30 +515,30 @@ Clqicomp = [-Klqi(4)];
 Dlqicomp = -Klqi(1:3)*eye(3,3);
 
 % Creating the LQI component
-c.SysLQI = ss(Alqicomp, Blqicomp, Clqicomp, Dlqicomp);
-c.SysLQI.StateName = ["Omega_i"];
-c.SysLQI.InputName = ["py"; "vy"; "W"];
-c.SysLQI.OutputName = ["thRef"];
+c.sysLQI = ss(Alqicomp, Blqicomp, Clqicomp, Dlqicomp);
+c.sysLQI.StateName = ["Omega_i"];
+c.sysLQI.InputName = ["py"; "vy"; "W"];
+c.sysLQI.OutputName = ["thRef"];
 
 
 % Full system with LQR controller
-SysLQI.full = connect(c.SysLQI, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, c.rotWind, ...
+sysLQI.full = connect(c.sysLQI, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, c.rotWind, ...
 			c.towSprMassFa, c.drt, ["vfree"], ...
 			["py"; "vy"; "W"]);
 		
-SysLQI.vfree_pyvyW = connect(c.SysLQI, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, c.rotWind, ...
+sysLQI.vfree_pyvyW = connect(c.sysLQI, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, c.rotWind, ...
 			c.towSprMassFa, c.drt, ["vfree"], ["py"; "vy"; "W"]);
 
-SysLQI.vfree_vy = connect(c.SysLQI, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, c.rotWind, ...
+sysLQI.vfree_vy = connect(c.sysLQI, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, c.rotWind, ...
 			c.towSprMassFa, c.drt, ["vfree"], ["vy"]);
 		
-SysLQI.vfree_W = connect(c.SysLQI, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, c.rotWind, ...
+sysLQI.vfree_W = connect(c.sysLQI, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, c.rotWind, ...
 			c.towSprMassFa, c.drt, ["vfree"], ["W"]);
 		
 
 % Evaluation of system
-SysLQI.evaluation_full_1 = ss_sys_evaluation(SysLQI.full.A, SysLQI.full.B, SysLQI.full.C, ...
-SysLQI.full.D, "System LQI");
+sysLQI.evaluation_full_1 = ss_sys_evaluation(sysLQI.full.A, sysLQI.full.B, sysLQI.full.C, ...
+sysLQI.full.D, "System LQI");
 
 
 % Plotting
@@ -552,7 +547,7 @@ SysLQI.full.D, "System LQI");
 
 % vfree -> vy
 % myfig(540, [0.6 0.25 700 500]);
-% [mag,phase,wout] = bode(SysLQI.vfree_vy);
+% [mag,phase,wout] = bode(sysLQI.vfree_vy);
 % 
 % subplot(2,1,1)
 % semilogx(rad2hz(wout), mag2db(squeeze(mag)))
@@ -571,7 +566,7 @@ SysLQI.full.D, "System LQI");
 % 
 % % vfree -> W
 % myfig(541, [0.6 0.25 700 500]);
-% [mag,phase,wout] = bode(SysLQI.vfree_W);
+% [mag,phase,wout] = bode(sysLQI.vfree_W);
 % 
 % subplot(2,1,1)
 % semilogx(rad2hz(wout), mag2db(squeeze(mag)))
@@ -590,17 +585,17 @@ SysLQI.full.D, "System LQI");
 
 % Bode full system
 % myfig(542);
-% bode(SysLQI.full)
+% bode(sysLQI.full)
 % title('Bode of linear model with LQI: Full system')
 
 % Bode vfree -> py, vy and W
 % myfig(543);
-% bode(SysLQI.vfree_pyvyW)
+% bode(sysLQI.vfree_pyvyW)
 % title('Bode of linear model with LQI: vfree -> py, vy and W')
 
 % Step vfree -> py, vy and W
 % myfig(544);
-% step(SysLQI.vfree_pyvyW)
+% step(sysLQI.vfree_pyvyW)
 % title('Step of linear model with LQI: vfree -> py, vy and W')
 
 % System: LQR/LQI approach 2
@@ -611,20 +606,15 @@ SysLQI.full.D, "System LQI");
 % simulation.
 
 
-SumRef = sumblk('e','wRef','w','+-');
-SysnoFLC2 = connect(c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, c.rotWind, ...
+sysNoFLC2 = connect(c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, c.rotWind, ...
 			c.towSprMassFa, c.drt, ["vfree"; "thRef"],["py"; "vy"; "W"])	
-		
-
-sys.evaluation_noFLC2_full_1 = ss_sys_evaluation(SysnoFLC2.A, ...
-	SysnoFLC2.B, SysnoFLC2.C, SysnoFLC2.D, "System no FLC with sumblk");
 
 
 % Extracting system matrices for making LQR controller
-Alqr = SysnoFLC2.A;
-Blqr = SysnoFLC2.B;
-Clqr = SysnoFLC2.C;
-Dlqr = SysnoFLC2.D;
+Alqr = sysNoFLC2.A;
+Blqr = sysNoFLC2.B;
+Clqr = sysNoFLC2.C;
+Dlqr = sysNoFLC2.D;
 
 % Split inputs into input and disturbance matrix
 distIndex = 1; % Index of disturbance (vfree)
@@ -633,13 +623,13 @@ Bdlqr = Blqr(:, distIndex);
 
 % Display names
 disp('States:')
-SysnoFLC2.StateName
+sysNoFLC2.StateName
 disp('Inputs:')
-SysnoFLC2.InputName(distIndex+1:end)
+sysNoFLC2.InputName(distIndex+1:end)
 disp('Disturbances:')
-SysnoFLC2.InputName(distIndex)
+sysNoFLC2.InputName(distIndex)
 disp('Outputs:')
-SysnoFLC2.OutputName
+sysNoFLC2.OutputName
 
 
 % Calculate LQR gains from A and B matrices
@@ -651,23 +641,23 @@ SysnoFLC2.OutputName
 % Closed loop system
 Acl_lqr = Alqr-Bulqr*Klqr2;		% Closed loop system
 
-SysLQR2 = ss(Acl_lqr, Bdlqr, Clqr, 0)
-SysLQR2.StateName = SysnoFLC2.StateName;
-SysLQR2.InputName = SysnoFLC2.InputName(distIndex); % Disturbance
-SysLQR2.OutputName = SysnoFLC2.OutputName;
+sysLQR2 = ss(Acl_lqr, Bdlqr, Clqr, 0)
+sysLQR2.StateName = sysNoFLC2.StateName;
+sysLQR2.InputName = sysNoFLC2.InputName(distIndex); % Disturbance
+sysLQR2.OutputName = sysNoFLC2.OutputName;
 
 % Evaluate system
-eval = ss_sys_evaluation(SysLQR2.A, SysLQR2.B, SysLQR2.C, SysLQR2.D, "System with LQR 2");
+eval = ss_sys_evaluation(sysLQR2.A, sysLQR2.B, sysLQR2.C, sysLQR2.D, "System with LQR 2");
 
 
 % Plotting
 
 % myfig(560);
-% step(SysLQR2)
+% step(sysLQR2)
 % title('Sys w. LQR V2 full system')
 % 
 % myfig(561);
-% bode(SysLQR2)
+% bode(sysLQR2)
 % title('Sys w. LQR V2: Bode LQR V2 full system')
 
 
@@ -702,26 +692,28 @@ Clqi = [Clqr	zeros(3,1)];
 Acl_lqi = Alqi-Bulqi*Klqi;
 
 % Creating the full closed loop LQR + integrator system
-SysLQI2 = ss(Acl_lqi, [Bulqi Bdlqi], Clqi, 0);
-tempStateNames = SysnoFLC2.StateName; tempStateNames{4} = 'W_i';
-SysLQI2.StateName = tempStateNames;
-SysLQI2.InputName = SysnoFLC2.InputName;
-SysLQI2.OutputName = SysnoFLC2.OutputName;
+sysLQI2 = ss(Acl_lqi, [Bdlqi Bulqi], Clqi, 0);
+tempStateNames = sysNoFLC2.StateName; tempStateNames{4} = 'W_i';
+sysLQI2.StateName = tempStateNames;
+sysLQI2.InputName = sysNoFLC2.InputName;
+sysLQI2.OutputName = sysNoFLC2.OutputName;
 
 % Evaluate system
-eval = ss_sys_evaluation(SysLQI2.A, SysLQI2.B, SysLQI2.C, SysLQI2.D, "System with LQI");
+eval = ss_sys_evaluation(sysLQI2.A, sysLQI2.B, sysLQI2.C, sysLQI2.D, "System with LQI 2");
 
 
 % Plotting
 % 
 % myfig(580);
-% step(SysLQI2)
+% step(sysLQI2)
 % title('Sys w. LQR V2 full system')
 % 
 % myfig(581);
-% bode(SysLQI2)
+% bode(sysLQI2)
 % title('Sys w. LQR V2: Bode LQR V2 full system')
 
+myfig(582);
+pzmap(sysLQI2)
 
 
 % Simulation setup for simulink (LQI)
@@ -734,58 +726,65 @@ x_op_temp_lqi =[ py_op vy_op W_op 0]';
 x_bar_init_lqi = [py_init vy_init W_init 0]';
 
 
-%% Discritisation of LQI system
+% Discritisation of LQI system
 
-% SysnoFLC2_d = c2d(SysnoFLC2, Ts ,'zoh')
-% 
-% % Check for stability:
-% if abs(eig(SysnoFLC2_d)) <= 1
-% 	disp('Discrete system "SysnoFLC2" is stable')
-% else
-% 	disp('Discrete system "SysnoFLC2" is NOT stable')
-% end
-% 
-% 
-% sysINT_d = c2d(ss(Alqi, [Bdlqi Bulqi], Clqi, 0), Ts, 'tustin');
-% 
-% Alqi_d = sysINT_d.A;
-% Bdlqi_d = sysINT_d.B(:,distIndex);
-% Bulqi_d = sysINT_d.B(:,distIndex+1:end);
-% Clqi_d = sysINT_d.C; % Due to 'tustin' method it's not just eye().. If 'zoh'
-% 					% method is used then it's = Clqi which is eye()
-% 
-% % Deriving discrete system manually:
-% Alqi_d2 = Alqi*Ts + eye(length(Alqi));
-% Bdlqi_d2 = Bdlqi*Ts;
-% Bulqi_d2 = Bulqi*Ts;
-% 
-% 
-% % Calculate LQI gains
-% [Klqi_d, S, P] = dlqr(Alqi_d, Bulqi_d, Qlqi, R, 0);
-% 
+sysNoFLC2_d = c2d(sysNoFLC2, Ts ,'zoh')
+
+% Check for stability:
+if abs(eig(sysNoFLC2_d)) <= 1
+	disp('Discrete system "sysNoFLC2" is stable')
+else
+	disp('Discrete system "sysNoFLC2" is NOT stable')
+end
+
+
+sysINT_d = c2d(ss(Alqi, [Bdlqi Bulqi], Clqi, 0), Ts, 'tustin');
+
+Alqi_d = sysINT_d.A;
+Bdlqi_d = sysINT_d.B(:,distIndex);
+Bulqi_d = sysINT_d.B(:,distIndex+1:end);
+Clqi_d = sysINT_d.C; % Due to 'tustin' method it's not just eye().. If 'zoh'
+					% method is used then it's = Clqi which is eye()
+
+% Deriving discrete system manually:
+Alqi_d2 = Alqi*Ts + eye(length(Alqi));
+Bdlqi_d2 = Bdlqi*Ts;
+Bulqi_d2 = Bulqi*Ts;
+
+
+% Calculate LQI gains
+[Klqi_d, S, P] = dlqr(Alqi_d, Bulqi_d, Qlqi, R, 0);
+
 % Klqi_d
 
 
-%% Calculating the FLC Kp, Ti parameters and the FATD Kpos Kvel gains:
+% Calculating the FLC Kp, Ti parameters and the FATD Kpos Kvel gains:
 
 Kpy = Klqi(1);
 Kvy = Klqi(2);
-Kp = 1/38.2 * 2*pi/60 * Klqi(3);
-Ti = Kp/(1/38.2 * 2*pi/60 * Klqi(4));
+% Kp = 1/38.2 * (2*pi)/60 * Klqi(3); % Convert gain from W [rad/s] to w/e [rpm]
+% Ti = Kp/(1/38.2 * (2*pi)/60 * Klqi(4)); % Kp/Ki
+Kp = (2*pi)/60 * Klqi(3); % Convert gain from W [rad/s] to W [rpm]
+Ti = Kp/((2*pi)/60 * Klqi(4)); % Kp/Ki
 
+% FLC PI controller gains: Kp = -3.83 og Ti = 4.5. Kp er ikke med gain
+% scheduling og gearratio som her: Kp = -0.058 = 1/38.2 * 0.5841 * -3.830
+% Hvor gearratio er 38.2 og gain scheduling er 0.5841
+
+LQIgains = [Kpy Kvy Kp Ti]
 
 %% Export figures
 % ---------------------------------
 % figSaveDir = "H:\Offshore_TEMP\USERS\MROTR\wtLinWork";				% Windows type path
-figSaveDir = "/Users/martin/Documents/Git/Repos/CA9_Project/Modelling";	% Macos type path
-createNewFolder = 1; % Folder name to save figures:
-folderName = "figuerExport";
-resolution = 400;
-myfigexport(figSaveDir, figArray, figNameArray, createNewFolder, folderName, resolution)
+% % figSaveDir = "/Users/martin/Documents/Git/Repos/CA9_Project/Modelling";	% Macos type path
+% createNewFolder = 1; % Folder name to save figures:
+% folderName = "figuerExport";
+% resolution = 400;
+% myfigexport(figSaveDir, figArray, figNameArray, createNewFolder, folderName, resolution)
 
 
 %% Save to a .mat file so i can use the data at home:
-% 
+
 % close all
 % if ispc
 % 	% Windows PC
