@@ -1,10 +1,21 @@
 clc;clear;close all;
 
-load('wtLinScriptData.mat', 'Alqi', 'Bulqi', 'Bdlqi', 'Clqi', 'sysNoFLC2')
+load('wtLinScriptData.mat', 'Alqi', 'Bulqi', 'Bdlqi', 'Clqi', 'sysNoFLC2', ...
+	'distIndex')
 
 
+% -----------------
+% | CHANGE THESE ->
+% -----------------
+s_W = 1;		% [rpm] - Rotor speed
+s_py = 5;		% [m] - Fore-aft position
+s_vy = 1;		% [m] - Fore-aft velocity
+s_Wi = s_W*5;	% [rpm] Rotor speed integrator state
 
-s_W = 1; s_py = 5; s_vy = 1; s_Wi = s_W*5; s_th = 5;
+s_th = 5;		% [deg] - Pitch actuator
+% -----------------
+% <- CHANGE THESE |
+% -----------------
 
 % State weighting
 var_Omega		= (s_W * (2*pi)/60)^2;	% Permitted variance of Omega in [rad/s]
@@ -23,7 +34,7 @@ Qlqi = [1/var_py	0			0				0
 
 
 % Including Integrator
-% ---------------------
+% --------------------
 
 % Calculate LQI gains
 [Klqi, S, P] = lqr(Alqi, Bulqi, Qlqi, R, 0);
@@ -32,10 +43,11 @@ Qlqi = [1/var_py	0			0				0
 Acl_lqi = Alqi-Bulqi*Klqi;
 
 % Creating the full closed loop LQR + integrator system
-sysLQI2 = ss(Acl_lqi, [Bdlqi Bulqi], Clqi, 0);
+sysLQI2 = ss(Acl_lqi, Bdlqi, Clqi, 0);
+% Add missing integrator state name:
 tempStateNames = sysNoFLC2.StateName; tempStateNames{4} = 'W_i';
 sysLQI2.StateName = tempStateNames;
-sysLQI2.InputName = sysNoFLC2.InputName;
+sysLQI2.InputName = sysNoFLC2.InputName(distIndex); % Disturbance
 sysLQI2.OutputName = sysNoFLC2.OutputName;
 
 

@@ -46,7 +46,9 @@ end
 gp=wtLin.GrossParams.importFromOldMat('V164_8MW.mat');
 
 % Setup experiment and ref
+% opWindSpeed = 12;
 opWindSpeed = 16;
+% opWindSpeed = 26;
 op=wtLin.operPoint.wind(opWindSpeed);
 
 %------ Setup ----------------
@@ -122,7 +124,7 @@ sys.vfree_W = connect(c.FLC, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, c.ro
 			c.towSprMassFa, c.drt, SumRef, ["vfree"], ["W"]);
 		
 % Check system
-sys.evaluation_full = ss_sys_evaluation(sys.full.A, sys.full.B, sys.full.C, ...
+sys.evaluation_full = mysysevaluation(sys.full.A, sys.full.B, sys.full.C, ...
 	sys.full.D, "Original system w. FLC PI");
 
 
@@ -297,7 +299,7 @@ W_op = lp.s.stat.genSpd * 1/lp.s.mp.drt.GearRatio * pi/30; % genSpd -> rotSpd
 x_op_temp_flc = [0 py_op vy_op W_op]';
 
 % Init away from the operating point (these are used in the LQR and LQI sims also)
-py_init = 10;
+py_init = 5;
 vy_init = 0;
 W_init = 0;
 x_bar_init_flc = [0 py_init vy_init W_init]';
@@ -370,7 +372,7 @@ sys.noFLC = connect(c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, c.rotWind, ..
 			c.towSprMassFa, c.drt, ["thRef"], ["py"; "vy"; "W"]);
 
 % Evaluate system (stability, controllability, observability)
-sys.evaluation_noFLC = ss_sys_evaluation(sys.noFLC.A, sys.noFLC.B, sys.noFLC.C, ...
+sys.evaluation_noFLC = mysysevaluation(sys.noFLC.A, sys.noFLC.B, sys.noFLC.C, ...
 	sys.noFLC.D, "System No FLC");
 
 % Print out state, input and outputs
@@ -387,7 +389,7 @@ sys.noFLC.OutputName
 % Using brysons rule to determine Q.
 % The below variables (e.g. s_W represent the max value deviation from the
 % operating point)
-s_W = 2; s_py = 2; s_vy = 0.5; s_Wi = s_W*5; s_th = 5;
+s_W = 1; s_py = 5; s_vy = 1; s_Wi = s_W*5; s_th = 5;
 var_Omega	= (s_W * (2*pi)/60)^2;	% Permitted variance of Omega in [rad/s]
 var_py		= s_py^2;				% Permitted variance of py in [m]
 var_vy		= s_vy^2;				% Permitted variance of vy in [m/s]
@@ -429,7 +431,7 @@ c.FLC_LQR.InputName = ["py"; "vy"; "W"];
 c.FLC_LQR.OutputName = ["thRef"];
 
 % Combining my LQR controller with the full system without FLC
-sysLQR.full_1 = connect(c.FLC_LQR, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, ...
+sysLQR.full = connect(c.FLC_LQR, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, ...
 			c.rotWind, c.towSprMassFa, c.drt, ["vfree"],["py"; "vy"; "W"]);
 
 sysLQR.vfree_pyvyW = connect(c.FLC_LQR, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, ...
@@ -440,8 +442,8 @@ sysLQR.vfree_vy = connect(c.FLC_LQR, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, ...
 		
 
 % Evaluation of system
-sysLQR.evaluation_full_1 = ss_sys_evaluation(sysLQR.full_1.A, sysLQR.full_1.B, ...
-			sysLQR.full_1.C, sysLQR.full_1.D, "System LQR full_1");
+sysLQR.evaluation_full_1 = mysysevaluation(sysLQR.full.A, sysLQR.full.B, ...
+			sysLQR.full.C, sysLQR.full.D, "System LQR full");
 		
 
 % Plotting
@@ -469,7 +471,7 @@ sysLQR.evaluation_full_1 = ss_sys_evaluation(sysLQR.full_1.A, sysLQR.full_1.B, .
 % 
 % % Bode full system
 % myfig(521);
-% bode(sysLQR.full_1)
+% bode(sysLQR.full)
 % title('Sys w. LQR: Closed loop bode of full system')
 % 
 % % Bode vfree -> py, vy and W
@@ -523,8 +525,7 @@ c.sysLQI.OutputName = ["thRef"];
 
 % Full system with LQR controller
 sysLQI.full = connect(c.sysLQI, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, c.rotWind, ...
-			c.towSprMassFa, c.drt, ["vfree"], ...
-			["py"; "vy"; "W"]);
+			c.towSprMassFa, c.drt, ["vfree"], ["py"; "vy"; "W"]);
 		
 sysLQI.vfree_pyvyW = connect(c.sysLQI, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, c.rotWind, ...
 			c.towSprMassFa, c.drt, ["vfree"], ["py"; "vy"; "W"]);
@@ -537,7 +538,7 @@ sysLQI.vfree_W = connect(c.sysLQI, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr
 		
 
 % Evaluation of system
-sysLQI.evaluation_full_1 = ss_sys_evaluation(sysLQI.full.A, sysLQI.full.B, sysLQI.full.C, ...
+sysLQI.evaluation_full_1 = mysysevaluation(sysLQI.full.A, sysLQI.full.B, sysLQI.full.C, ...
 sysLQI.full.D, "System LQI");
 
 
@@ -647,7 +648,7 @@ sysLQR2.InputName = sysNoFLC2.InputName(distIndex); % Disturbance
 sysLQR2.OutputName = sysNoFLC2.OutputName;
 
 % Evaluate system
-eval = ss_sys_evaluation(sysLQR2.A, sysLQR2.B, sysLQR2.C, sysLQR2.D, "System with LQR 2");
+eval = mysysevaluation(sysLQR2.A, sysLQR2.B, sysLQR2.C, sysLQR2.D, "System with LQR 2");
 
 
 % Plotting
@@ -692,14 +693,15 @@ Clqi = [Clqr	zeros(3,1)];
 Acl_lqi = Alqi-Bulqi*Klqi;
 
 % Creating the full closed loop LQR + integrator system
-sysLQI2 = ss(Acl_lqi, [Bdlqi Bulqi], Clqi, 0);
+sysLQI2 = ss(Acl_lqi, Bdlqi, Clqi, 0);
+% Add missing integrator state name:
 tempStateNames = sysNoFLC2.StateName; tempStateNames{4} = 'W_i';
 sysLQI2.StateName = tempStateNames;
-sysLQI2.InputName = sysNoFLC2.InputName;
+sysLQI2.InputName = sysNoFLC2.InputName(distIndex); % Disturbance
 sysLQI2.OutputName = sysNoFLC2.OutputName;
 
 % Evaluate system
-eval = ss_sys_evaluation(sysLQI2.A, sysLQI2.B, sysLQI2.C, sysLQI2.D, "System with LQI 2");
+eval = mysysevaluation(sysLQI2.A, sysLQI2.B, sysLQI2.C, sysLQI2.D, "System with LQI 2");
 
 
 % Plotting
@@ -797,7 +799,7 @@ LQIgains = [Kpy Kvy Kp Ti]
 %% Functions
 % =========================================================================
 
-function ss_sys_evaluation = ss_sys_evaluation(A, B, C, D, sysName)
+function evaluation = mysysevaluation(A, B, C, D, sysName)
 	% Check important parameters of state space system such as:
 	% - Stability (neg/pos eigenvalues)
 	% - Controllability
@@ -808,7 +810,7 @@ function ss_sys_evaluation = ss_sys_evaluation(A, B, C, D, sysName)
 	disp("--------------------")
 
 	% Poles
-	ss_sys_evaluation.eig = eig(A);
+	evaluation.eig = eig(A);
 	if real(eig(A)) <= 0
 		disp("System is stable")
 	else
@@ -816,17 +818,17 @@ function ss_sys_evaluation = ss_sys_evaluation(A, B, C, D, sysName)
 	end
 	
 	% controllability
-	ss_sys_evaluation.Co = ctrb(A, B);
-	if (length(A) - rank(ss_sys_evaluation.Co)) == 0
-		disp("System controllable")
+	evaluation.Co = ctrb(A, B);
+	if (length(A) - rank(evaluation.Co)) == 0
+		disp("System is controllable")
 	else
 		disp("System is NOT controllable!!")
 	end
 	
 	% Observability
-	ss_sys_evaluation.Oo = obsv(A,C);
-	if (length(A) - rank(ss_sys_evaluation.Oo)) == 0
-		disp("System observable")
+	evaluation.Oo = obsv(A,C);
+	if (length(A) - rank(evaluation.Oo)) == 0
+		disp("System is observable")
 	else
 		disp("System is NOT observable!!")
 	end

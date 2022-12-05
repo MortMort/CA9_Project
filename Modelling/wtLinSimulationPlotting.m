@@ -29,6 +29,10 @@ fontSize.label = 11;
 fontSize.labelSmall = 10;
 
 
+% Set grid to be ON as default for this matlab session
+set(groot,'DefaultAxesXGrid','on')
+set(groot,'DefaultAxesYGrid','on')
+
 
 % TEMPLATE
 % title('text', 'FontSize', fontSize.title, 'interpreter','latex')
@@ -38,7 +42,10 @@ figArray = [];
 figNameArray = [];
 
 
-
+%% =================================================
+% vfree step setup
+% =================================================
+close all
 
 % Pitch reference and pitch reference derivative
 f = myfig(1, figSize.two);
@@ -46,7 +53,10 @@ subplot(211)
 plot(nt, simData.getElement('u_bar_thRef_lqi').Values.Data)
 hold on
 plot(nt, simData.getElement('u_bar_thRef_deriv_lqi').Values.Data)
-ylim([-3 10])
+xline(300, '--', {'vfree', 'step'}, 'interpreter','latex', 'LabelOrientation', ...
+				'horizontal', 'LabelVerticalAlignment','top');
+xlim([-1 1000])
+% ylim([-3 10])
 title('LQI pitch angle reference', 'FontSize', fontSize.title, 'interpreter','latex')
 legend('$\theta$', '$\theta_{deriv}$', 'FontSize', fontSize.leg, 'interpreter','latex')
 ylabel(["Angle [deg]", "Angle/s [deg/s]"], 'FontSize', fontSize.label, 'interpreter','latex')
@@ -56,7 +66,7 @@ subplot(223)
 plot(nt, simData.getElement('u_bar_thRef_lqi').Values.Data)
 hold on
 plot(nt, simData.getElement('u_bar_thRef_deriv_lqi').Values.Data)
-tstart = 0; tend = 50; % Xlim start for zoom 2
+tstart = -1; tend = 50; % Xlim start for zoom 2
 title(sprintf('Zoom T = %.0f:%.0f s',tstart, tend), 'FontSize', 12, 'interpreter','latex')
 xlim([tstart tend])
 % legend('$\theta$', '$\theta_{deriv}$', 'FontSize', fontSize.leg, 'interpreter','latex')
@@ -68,6 +78,8 @@ plot(nt, simData.getElement('u_bar_thRef_lqi').Values.Data)
 hold on
 plot(nt, simData.getElement('u_bar_thRef_deriv_lqi').Values.Data)
 tstart = 295; tend = 360; % Xlim start for zoom 2
+xline(300, '--', {'vfree', 'step'}, 'interpreter','latex', 'LabelOrientation', ...
+				'horizontal', 'LabelVerticalAlignment','top');
 title(sprintf('Zoom T = %.0f:%.0f s',tstart, tend), 'FontSize', 12, 'interpreter','latex')
 xlim([tstart tend])
 ylim([-1 4])
@@ -82,9 +94,9 @@ figNameArray = [figNameArray "01_pitch"];
 
 f = myfig(2, figSize.three);
 subplot(311)
-plot(nt, simData.getElement('x_bar_sys5_W').Values.Data)
+plot(nt, simData.getElement('x_bar_W_rad').Values.Data)
 hold on
-plot(nt, simData.getElement('x_bar_W_lqi').Values.Data)
+plot(nt, simData.getElement('x_bar_W_lqi_rad').Values.Data)
 xline(300, '--', {'vfree', 'step'}, 'interpreter','latex', 'LabelOrientation', ...
 				'horizontal', 'LabelVerticalAlignment','bottom');
 title('Rotor speed', 'FontSize', fontSize.title, 'interpreter','latex')
@@ -94,7 +106,7 @@ xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
 legend('FLC PI', 'LQI', 'FontSize', fontSize.legSmall, 'interpreter','latex')
 
 subplot(312)
-plot(nt, simData.getElement('x_bar_sys5_py').Values.Data)
+plot(nt, simData.getElement('x_bar_py').Values.Data)
 hold on
 plot(nt, simData.getElement('x_bar_py_lqi').Values.Data)
 xline(300, '--', {'vfree', 'step'}, 'interpreter','latex', 'LabelOrientation', ...
@@ -105,7 +117,7 @@ xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
 % legend('FLC PI', 'LQI', 'FontSize', fontSize.legSmall, 'interpreter','latex')
 
 subplot(313)
-plot(nt, simData.getElement('x_bar_sys5_vy').Values.Data)
+plot(nt, simData.getElement('x_bar_vy').Values.Data)
 hold on
 plot(nt, simData.getElement('x_bar_vy_lqi').Values.Data)
 xline(300, '--', {'vfree', 'step'}, 'interpreter','latex', 'LabelOrientation', ...
@@ -122,9 +134,9 @@ figNameArray = [figNameArray "02_W_py_vy_comp"];
 
 f = myfig(3, figSize.three);
 subplot(311)
-plot(nt, simData.getElement('x_bar_sys5_W').Values.Data)
+plot(nt, simData.getElement('x_bar_W_rad').Values.Data)
 hold on
-plot(nt, simData.getElement('x_bar_W_lqi').Values.Data)
+plot(nt, simData.getElement('x_bar_W_lqi_rad').Values.Data)
 tstart = 295; tend = 500;
 xlim([tstart tend])
 xline(300, '--', {'vfree', 'step'}, 'interpreter','latex', 'LabelOrientation', ...
@@ -136,7 +148,7 @@ xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
 legend('FLC PI', 'LQI', 'FontSize', fontSize.legSmall, 'interpreter','latex')
 
 subplot(312)
-plot(nt, simData.getElement('x_bar_sys5_py').Values.Data)
+plot(nt, simData.getElement('x_bar_py').Values.Data)
 hold on
 plot(nt, simData.getElement('x_bar_py_lqi').Values.Data)
 xlim([tstart tend])
@@ -149,7 +161,7 @@ xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
 % legend('FLC PI', 'LQI', 'FontSize', fontSize.legSmall, 'interpreter','latex')
 
 subplot(313)
-plot(nt, simData.getElement('x_bar_sys5_vy').Values.Data)
+plot(nt, simData.getElement('x_bar_vy').Values.Data)
 hold on
 plot(nt, simData.getElement('x_bar_vy_lqi').Values.Data)
 xlim([tstart tend])
@@ -166,14 +178,14 @@ figNameArray = [figNameArray "03_W_py_vy_comp_zoom"];
 
 % f = myfig(2, figSize.two);
 % subplot(211)
-% plot(nt, simData.getElement('x_bar_sys5_W').Values.Data)
+% plot(nt, simData.getElement('x_bar_W_rad').Values.Data)
 % hold on
-% plot(nt, simData.getElement('x_bar_sys5_py').Values.Data)
-% plot(nt, simData.getElement('x_bar_sys5_vy').Values.Data)
+% plot(nt, simData.getElement('x_bar_py').Values.Data)
+% plot(nt, simData.getElement('x_bar_vy').Values.Data)
 % legend('FLC PI: W', 'FLC PI: py', 'FLC PI: vy')
 % 
 % subplot(212)
-% plot(nt, simData.getElement('x_bar_W_lqi').Values.Data)
+% plot(nt, simData.getElement('x_bar_W_lqi_rad').Values.Data)
 % hold on
 % plot(nt, simData.getElement('x_bar_py_lqi').Values.Data)
 % plot(nt, simData.getElement('x_bar_vy_lqi').Values.Data)
@@ -186,27 +198,27 @@ figNameArray = [figNameArray "03_W_py_vy_comp_zoom"];
 % ZOOM
 % f = myfig(3, figSize.two);
 % subplot(221)
-% plot(nt, simData.getElement('x_bar_sys5_W').Values.Data)
+% plot(nt, simData.getElement('x_bar_W_rad').Values.Data)
 % hold on
-% plot(nt, simData.getElement('x_bar_sys5_py').Values.Data)
-% plot(nt, simData.getElement('x_bar_sys5_vy').Values.Data)
+% plot(nt, simData.getElement('x_bar_py').Values.Data)
+% plot(nt, simData.getElement('x_bar_vy').Values.Data)
 % xlim([0 50])
 % % ylim([-2 2])
 % title('Original FLC PI')
 % legend('W', 'py', 'vy', 'location', 'southeast')
 % 
 % subplot(222)
-% plot(nt, simData.getElement('x_bar_sys5_W').Values.Data)
+% plot(nt, simData.getElement('x_bar_W_rad').Values.Data)
 % hold on
-% plot(nt, simData.getElement('x_bar_sys5_py').Values.Data)
-% plot(nt, simData.getElement('x_bar_sys5_vy').Values.Data)
+% plot(nt, simData.getElement('x_bar_py').Values.Data)
+% plot(nt, simData.getElement('x_bar_vy').Values.Data)
 % xlim([280 400])
 % % ylim([])
 % title('Original FLC')
 % legend('W', 'py', 'vy', 'location', 'southeast')
 % 
 % subplot(223)
-% plot(nt, simData.getElement('x_bar_W_lqi').Values.Data)
+% plot(nt, simData.getElement('x_bar_W_lqi_rad').Values.Data)
 % hold on
 % plot(nt, simData.getElement('x_bar_py_lqi').Values.Data)
 % plot(nt, simData.getElement('x_bar_vy_lqi').Values.Data)
@@ -216,7 +228,7 @@ figNameArray = [figNameArray "03_W_py_vy_comp_zoom"];
 % legend('W', 'py', 'vy', 'location', 'southeast')
 % 
 % subplot(224)
-% plot(nt, simData.getElement('x_bar_W_lqi').Values.Data)
+% plot(nt, simData.getElement('x_bar_W_lqi_rad').Values.Data)
 % hold on
 % plot(nt, simData.getElement('x_bar_py_lqi').Values.Data)
 % plot(nt, simData.getElement('x_bar_vy_lqi').Values.Data)
@@ -247,7 +259,129 @@ figNameArray = [figNameArray "03_W_py_vy_comp_zoom"];
 
 
 
-% Export figures
+%% =================================================
+% VTS vfree data setup
+% =================================================
+% close all
+
+% Pitch reference and pitch reference derivative
+f = myfig(10, figSize.two);
+subplot(211)
+plot(nt, simData.getElement('u_bar_thRef_lqi').Values.Data)
+hold on
+plot(nt, simData.getElement('u_bar_thRef_deriv_lqi').Values.Data)
+ylim([-4 7])
+title('LQI pitch angle reference', 'FontSize', fontSize.title, 'interpreter','latex')
+legend('$\theta$', '$\theta_{deriv}$', 'FontSize', fontSize.leg, 'interpreter','latex')
+ylabel(["Angle [deg]", "Angle/s [deg/s]"], 'FontSize', fontSize.label, 'interpreter','latex')
+xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
+
+
+subplot(212)
+plot(nt, simData.getElement('u_bar_thRef_lqi').Values.Data)
+hold on
+plot(nt, simData.getElement('u_bar_thRef_deriv_lqi').Values.Data)
+tstart = 0; tend = 50; % Xlim start for zoom 2
+title(sprintf('Zoom T = %.0f:%.0f s',tstart, tend), 'FontSize', 12, 'interpreter','latex')
+xlim([tstart-1 tend])
+ylim([-4 7])
+% legend('$\theta$', '$\theta_{deriv}$', 'FontSize', fontSize.leg, 'interpreter','latex')
+ylabel(["Angle [deg]", "Angle/s [deg/s]"], 'FontSize', fontSize.label, 'interpreter','latex')
+xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
+
+
+figArray = [figArray f];
+figNameArray = [figNameArray "10_pitch"];
+
+
+
+
+f = myfig(11, figSize.three);
+subplot(311)
+plot(nt, simData.getElement('x_bar_W_rad').Values.Data)
+hold on
+plot(nt, simData.getElement('x_bar_W_lqi_rad').Values.Data)
+ylim([-3 3])
+title('Rotor speed', 'FontSize', fontSize.title, 'interpreter','latex')
+ylabel('Angular velocity [rpm]', 'FontSize', fontSize.label, 'interpreter','latex')
+xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
+
+
+legend('FLC PI', 'LQI', 'FontSize', fontSize.legSmall, 'interpreter','latex')
+
+subplot(312)
+plot(nt, simData.getElement('x_bar_py').Values.Data)
+hold on
+plot(nt, simData.getElement('x_bar_py_lqi').Values.Data)
+ylim([-7 7])
+title('Surge direction position', 'FontSize', fontSize.title, 'interpreter','latex')
+ylabel('Position [m]', 'FontSize', fontSize.label, 'interpreter','latex')
+xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
+% legend('FLC PI', 'LQI', 'FontSize', fontSize.legSmall, 'interpreter','latex')
+
+
+subplot(313)
+plot(nt, simData.getElement('x_bar_vy').Values.Data)
+hold on
+plot(nt, simData.getElement('x_bar_vy_lqi').Values.Data)
+ylim([-2 2])
+title('Surge direction velocity', 'FontSize', fontSize.title, 'interpreter','latex')
+ylabel('Velocity [m/s]', 'FontSize', fontSize.label, 'interpreter','latex')
+xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
+% legend('FLC PI', 'LQI', 'FontSize', fontSize.legSmall, 'interpreter','latex')
+
+
+figArray = [figArray f];
+figNameArray = [figNameArray "11_W_py_vy_comp"];
+
+
+
+f = myfig(12, figSize.three);
+subplot(311)
+plot(nt, simData.getElement('x_bar_W_rad').Values.Data)
+hold on
+plot(nt, simData.getElement('x_bar_W_lqi_rad').Values.Data)
+ylim([-3 3])
+tstart = -1; tend = 100;
+xlim([tstart tend])
+title(sprintf('Rotor speed zoomed at T = %.0f:%.0f',tstart,tend), 'FontSize', ...
+				fontSize.title, 'interpreter','latex')
+ylabel('Angular velocity [rpm]', 'FontSize', fontSize.label, 'interpreter','latex')
+xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
+legend('FLC PI', 'LQI', 'FontSize', fontSize.legSmall, 'interpreter','latex')
+
+
+subplot(312)
+plot(nt, simData.getElement('x_bar_py').Values.Data)
+hold on
+plot(nt, simData.getElement('x_bar_py_lqi').Values.Data)
+ylim([-7 7])
+xlim([tstart tend])
+title(sprintf('Surge direction position zoomed at T = %.0f:%.0f',tstart,tend), ...
+				'FontSize', fontSize.title, 'interpreter','latex')
+ylabel('Position [m]', 'FontSize', fontSize.label, 'interpreter','latex')
+xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
+% legend('FLC PI', 'LQI', 'FontSize', fontSize.legSmall, 'interpreter','latex')
+
+
+subplot(313)
+plot(nt, simData.getElement('x_bar_vy').Values.Data)
+hold on
+plot(nt, simData.getElement('x_bar_vy_lqi').Values.Data)
+ylim([-2 2])
+xlim([tstart tend])
+title(sprintf('Surge direction velocity zoomed at T = %.0f:%.0f',tstart,tend), ...
+				'FontSize', fontSize.title, 'interpreter','latex')
+ylabel('Velocity [m/s]', 'FontSize', fontSize.label, 'interpreter','latex')
+xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
+% legend('FLC PI', 'LQI', 'FontSize', fontSize.legSmall, 'interpreter','latex')
+
+
+figArray = [figArray f];
+figNameArray = [figNameArray "12_W_py_vy_comp_zoom"];
+
+
+%% Export figures
 % ---------------------------------
 if ispc % <- checks if the script is run on a windows computer
 	% Path to folder on windows
@@ -263,4 +397,4 @@ figNameArray = strcat(figNameArray, exportFileType);
 % figSaveDir = "H:/Offshore_TEMP/USERS/MROTR/wtLinWork"; % Macos type path
 createNewFolder = 0; % Folder name to save figures:
 resolution = 400;
-myfigexport(figSaveDir, figArray, figNameArray, createNewFolder, "nofolder", resolution)
+myfigexport(figSaveDir, figArray, strcat('sim_', figNameArray), createNewFolder, "nofolder", resolution)

@@ -52,7 +52,7 @@ ylabel('Phase [deg]', 'FontSize', fontSize.label, 'interpreter','latex')
 grid
 
 figArray = [figArray f];
-figNameArray = [figNameArray "10_vfreeTovy"];
+figNameArray = [figNameArray "script_vfreeTovy"];
 
 
 % vfree -> vy
@@ -83,7 +83,7 @@ ylabel('Phase [deg]', 'FontSize', fontSize.label, 'interpreter','latex')
 grid
 
 figArray = [figArray f];
-figNameArray = [figNameArray "11_vfreeToW"];
+figNameArray = [figNameArray "script_vfreeToW"];
 
 
 
