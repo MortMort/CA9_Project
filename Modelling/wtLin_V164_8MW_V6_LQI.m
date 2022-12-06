@@ -523,7 +523,7 @@ c.sysLQI.InputName = ["py"; "vy"; "W"];
 c.sysLQI.OutputName = ["thRef"];
 
 
-% Full system with LQR controller
+% Full system with LQI controller
 sysLQI.full = connect(c.sysLQI, c.pitUn, c.cnvUn, c.gen, c.aeroFLC, c.aeroThr, c.rotWind, ...
 			c.towSprMassFa, c.drt, ["vfree"], ["py"; "vy"; "W"]);
 		
