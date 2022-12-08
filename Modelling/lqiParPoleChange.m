@@ -1,5 +1,5 @@
 clc;clear;
-% close all;
+close all;
 
 load('wtLinScriptData.mat', 'Alqi', 'Bulqi', 'Bdlqi', 'Clqi', 'sysNoFLC2', ...
 	'distIndex')
@@ -11,21 +11,22 @@ load('wtLinScriptData.mat', 'Alqi', 'Bulqi', 'Bdlqi', 'Clqi', 'sysNoFLC2', ...
 % -----------------
 
 % DEFAULT VALUES ->
-% s_W = 1;		% [rpm] - Rotor speed
-% s_py = 5;		% [m] - Fore-aft position
-% s_vy = 1;		% [m] - Fore-aft velocity
-% s_Wi = s_W*5;	% [rpm] Rotor speed integrator state
-% 
-% s_th = 5;		% [deg] - Pitch actuator
+s_pydef = 5;		% [m] - Fore-aft position
+s_vydef = 1;		% [m] - Fore-aft velocity
+s_Wdef = 1;		% [rpm] - Rotor speed
+s_Widef = s_Wdef*5;	% [rpm] Rotor speed integrator state
+
+s_thdef = 5;		% [deg] - Pitch actuator
 % <- DEFAULT VALUES
 
-s_py = [5 2.5 1];				% [m] - Fore-aft position
-s_vy = [0.5 0.25 0.1];			% [m] - Fore-aft velocity
-s_W	 = [1 0.75 0.5]*2*pi/60;	% [rpm] - Rotor speed
-s_Wi = [5 2.5 1]*2*pi/60;		% [rpm] Rotor speed integrator state
+s_py = [s_pydef s_pydef*0.5 s_pydef*0.25];				% [m] - Fore-aft position
+s_vy = [s_vydef s_vydef*0.5 s_vydef*0.25];			% [m] - Fore-aft velocity
+s_W	 = [s_Wdef	s_Wdef*0.5 s_Wdef*0.25];	% [rpm] - Rotor speed
+s_Wi = [s_Widef s_Widef*0.5 s_Widef*0.25];		% [rpm] Rotor speed integrator state
 
-s_th = [1 2.5 5];				% [deg] - Pitch actuator
+s_th = [s_thdef*0.2 s_thdef*0.5 s_thdef];				% [deg] - Pitch actuator
 
+sArray = [s_py;s_vy;s_W;s_Wi;s_th];
 % -----------------
 % <- CHANGE THESE |
 % -----------------
@@ -33,8 +34,8 @@ s_th = [1 2.5 5];				% [deg] - Pitch actuator
 % State weighting
 var_py			= s_py.^2;					% Permitted variance of py in [m]
 var_vy			= s_vy.^2;					% Permitted variance of vy in [m/s]
-var_Omega		= (s_W .* (2*pi)./60).^2;	% Permitted variance of Omega in [rad/s]
-var_OmegaInt	= (s_Wi .* (2*pi)./60).^2;	% rad/s -> rpm weight
+var_Omega		= (s_W .* (2*pi)/60).^2;	% Permitted variance of Omega in [rad/s]
+var_OmegaInt	= (s_Wi .* (2*pi)/60).^2;	% rad/s -> rpm weight
 
 % Input weighting
 var_th = s_th.^2; % V2 tuning parameter
@@ -88,67 +89,237 @@ for nn = 1:5 % 5 = amount of variables (s_W, s_py.. etc.)
 	end
 end
 
+
 % Plotting
 % ---------------------
+
+% Default figure dimensions and location based on # of plots in subplot:
+% figSize.one =	[1 0.25 700 300];
+% figSize.two =	[1 0.25 700 400];
+% figSize.three = [1 0.25 700 550];
+% figSize.four =	[1 0.25 700 670];
+
+% fontSize.leg = 11;
+% fontSize.legSmall = 9;
+% fontSize.title = 13;
+% fontSize.label = 11;
+
 zoomEnabled = 0;
 
-myfig(1, [0 0.70 1000 400]);
-for nn = 1:2
-	subplot(1,2,nn)
+% set(groot, 'defaultAxesTickLabelInterpreter','latex');
+% set(groot, 'defaultAxesTickLabelInterpreter','latex');
+% set(groot, 'defaultLegendInterpreter','latex');
+% set(groot, 'defaultTextInterpreter','latex');
+% set(groot, 'defaultBubblelegendInterpreter', 'latex')
+% set(groot, 'defaultPolaraxesTickLabelInterpreter', 'latex')
+% set(groot, 'defaultTextInterpreter', 'latex')
+
+% Change the default font size of figures:
+% set(groot,'defaultAxesFontSize', 10)		% Default is 10
+% set(groot, 'defaultAxesLabelFontSize', 10);	% Default is ??
+% set(groot, 'defaultLegendFontSize', 9);	% Default is 9
+
+% set(groot,'defaultAxesTitleFontSizeMultiplier', 1.1) % 1.1 is default
+
+
+% See all possible values that can be set:
+% get(groot, 'factory')
+% See the values whoose defaults have been changed:
+% get(groot, 'default') 
+
+% Set grid to be ON as default for this matlab session
+set(groot,'DefaultAxesXGrid','on')
+set(groot,'DefaultAxesYGrid','on')
+% Not working for some reason on pzmaps and steps
+
+% Initialize figure array and figure name array
+figArray = [];
+figNameArray = [];
+
+variableArray = ["py", "vy", "W", "Wi", "theta"];
+
+%% Test section
+
+xlimCell = {0; 0; [-2.2 0.05]; 0; 0};
+ylimCell = {0; 0; [-0.27 0.27]; 0; 0};
+
+close all
+
+% Each cell row is an arrow, each cell column from 1 -> 5 represents each
+% figure plot. 0 in a cokumn means that that plot does not have an arrow.
+arrowCell = {0, [0.85 0.84; 0.87 0.73], 0, 0, [0.85 0.85; 0.87 0.83]
+			0, [0.78 0.82; 0.53 0.53], 0, 0, [0.76 0.6; 1-0.66 1-0.67]
+			0, [0.6 0.2; 0.53 0.53], [0.7 0.2; 0.53 0.53], 0, [0.6 0.62; 1-0.67 0.49]
+			0, 0, 0, 0, [0.76 0.62; 0.66 0.67]
+			0, 0, 0, 0, [0.62 0.22; 0.67 0.52]};
+
+
+% Box
+boxCell = {0, 0, [.8 .48 .1 .4], 0, 0};
+
+% Text
+textCell = {0, 0, [-0.55 0.14], 0, 0};
+
+% Pole-zero maps
+for nn = 1:5
+	figNo = nn;
+	f = myfig(figNo, [0 0.70 540 450]);
 	pzmap(sysNoFLC2)
 	hold on
 	pzmap(sysLQI2{nn,1})
 	pzmap(sysLQI2{nn,2})
 	pzmap(sysLQI2{nn,3})
-	if nn == 1
-		for ii = 1:length(s_W)
-			legstr(ii) = sprintf("max(py) = %.2f", s_py(ii));
-		end
-	elseif nn == 2
-		for ii = 1:length(s_W)
-			legstr(ii) = sprintf("max(vy) = %.2f", s_vy(ii));
+	a = findobj(gca,'type','line');
+	for i = 1:length(a)
+    	set(a(i),'markersize',8);	% change marker size
+    	set(a(i), 'linewidth',1.5); % change linewidth
+	end
+	% Add arrows
+	for ii = 1:length([arrowCell{:,1}])
+		if arrowCell{ii,nn} > 0
+			annotation('arrow', arrowCell{ii,nn}(1,:), arrowCell{ii,nn}(2,:))
 		end
 	end
-	if zoomEnabled; xlim([-0.21 0.01]); ylim([-0.01 0.26]); end
-	legend(['FLC PI', legstr], 'Location','northwest')
+	% Add boxes
+	if boxCell{nn} > 0
+		annotation('rectangle',boxCell{nn}, 'LineStyle', '--')
+	end
+	% Add text
+	if textCell{nn} ~= 0
+		text(textCell{nn}(1), textCell{nn}(2),'Zoom area')
+	end
+	% Create legends:
+	for ii = 1:length(s_W)
+		legStr(ii) = sprintf(strcat('max(', string(variableArray(nn)), ') = %.2f'), sArray(nn,ii));
+	end
+	legend(['FLC PI', legStr], 'Location','northwest')
+	title(strcat("Pole-zero map with varying max(", variableArray(nn), ")"))
 	hold off
+	if xlimCell{nn} ~= 0
+		xlim(xlimCell{nn})
+	end
+	if ylimCell{nn} ~= 0
+		ylim(ylimCell{nn})
+	end
+	figArray = [figArray f];
+	figNameArray = [figNameArray strcat(string(0), string(figNo), '_pzmap_', string(variableArray(nn)))];
 end
 
-myfig(2, [0 0.25 1000 400]);
-for nn = 3:4
-	subplot(1,2,nn-2)
+%% Test section 
+
+% close all
+
+xlimCell = {0; [-0.225 0.01]; [-0.225 0.01]; 0; 0};
+ylimCell = {0; [-0.01 0.26]; [-0.01 0.26]; 0; 0};
+
+% Zoom
+
+arrowCell = {0, 0, [0.66 0.8; 0.75 0.83], 0, 0
+			0, 0, 0, 0, 0
+			0, 0, [0.18 0.71; 0.16 0.16], 0, 0};
+
+for nn = 1:5
+	figNo = nn + 10;
+	f = myfig(figNo, [0.4 0.70 540 450]);
 	pzmap(sysNoFLC2)
 	hold on
 	pzmap(sysLQI2{nn,1})
 	pzmap(sysLQI2{nn,2})
 	pzmap(sysLQI2{nn,3})
-	if nn == 3
-		for ii = 1:length(s_W)
-			legstr(ii) = sprintf("max(W) = %.2f [rpm]", s_W(ii));
-		end
-	elseif nn == 4
-		for ii = 1:length(s_W)
-			legstr(ii) = sprintf("max(Wi) = %.2f [rpm]", s_Wi(ii));
+	a = findobj(gca,'type','line');
+	for i = 1:length(a)
+    	set(a(i),'markersize',8); %change marker size
+    	set(a(i), 'linewidth',2);  %change linewidth
+	end
+	% Add arrows
+	for ii = 1:length([arrowCell{:,1}])
+		if arrowCell{ii,nn} > 0
+			annotation('arrow', arrowCell{ii,nn}(1,:), arrowCell{ii,nn}(2,:))
 		end
 	end
-	if zoomEnabled; xlim([-1.05 0.01]); ylim([-0.01 0.26]); end
-	legend(['FLC PI', legstr], 'Location','northwest')
+	
+	% Create legends:
+	for ii = 1:length(s_W)
+		legStr(ii) = sprintf(strcat('max(', string(variableArray(nn)), ') = %.2f'), sArray(nn,ii));
+	end
+	legend(['FLC PI', legStr], 'Location','northwest')
+	title(strcat("Pole-zero map with varying max(", variableArray(nn), ") - Zoomed"))
 	hold off
+	if xlimCell{nn} ~= 0
+		xlim(xlimCell{nn})
+	end
+	if ylimCell{nn} ~= 0
+		ylim(ylimCell{nn})
+	end
+	figArray = [figArray f];
+	figNameArray = [figNameArray strcat(string(figNo), '_pzmapzoom_', string(variableArray(nn)))];
 end
 
-myfig(3, [0.8 0.5 500 400]);
-pzmap(sysNoFLC2)
-nn = 5;
-hold on
-pzmap(sysLQI2{nn,1})
-pzmap(sysLQI2{nn,2})
-pzmap(sysLQI2{nn,3})
-for ii = 1:length(s_W)
-	legstr(ii) = sprintf("max(thRef) = %.2f", s_th(ii));
+%% Steps
+for nn = 1:5
+	figNo = nn+100;
+	f = myfig(figNo, [0.7 0.70 600 500]);
+	step(sysLQI2{nn,1})
+	hold on
+	step(sysLQI2{nn,2})
+	step(sysLQI2{nn,3})
+	% Create legends:
+	for ii = 1:length(s_W)
+		legStr(ii) = sprintf(strcat('max(', string(variableArray(nn)), ') = %.2f'), sArray(nn,ii));
+	end
+	legend(legStr, 'Location','northeast')
+	title(strcat("Pole-zero map with varying max(", variableArray(nn), ")"))
+	hold off
+% 	if xlimCell{nn} ~= 0
+% 		xlim(xlimCell{nn})
+% 	end
+% 	if ylimCell{nn} ~= 0
+% 		ylim(ylimCell{nn})
+% 	end
+	grid on
+	figArray = [figArray f];
+	figNameArray = [figNameArray strcat(string(figNo), '_step_', string(variableArray(nn)))];
 end
-if zoomEnabled; xlim([-1.05 0.01]); ylim([-0.01 0.26]); end
-legend(['FLC PI', legstr], 'Location','northwest')
-hold
+
+
+
+% % W and Wi
+% myfig(2, [0 0.25 1000 400]);
+% for nn = 3:4
+% 	subplot(1,2,nn-2)
+% 	pzmap(sysNoFLC2)
+% 	hold on
+% 	pzmap(sysLQI2{nn,1})
+% 	pzmap(sysLQI2{nn,2})
+% 	pzmap(sysLQI2{nn,3})
+% 	if nn == 3
+% 		for ii = 1:length(s_W)
+% 			legstr(ii) = sprintf("max(W) = %.2f [rpm]", s_W(ii));
+% 		end
+% 	elseif nn == 4
+% 		for ii = 1:length(s_W)
+% 			legstr(ii) = sprintf("max(Wi) = %.2f [rpm]", s_Wi(ii));
+% 		end
+% 	end
+% 	if zoomEnabled; xlim([-1.05 0.01]); ylim([-0.01 0.26]); end
+% 	legend(['FLC PI', legstr], 'Location','northwest')
+% 	hold off
+% end
+% 
+% % Theta
+% myfig(3, [0.8 0.5 500 400]);
+% pzmap(sysNoFLC2)
+% nn = 5;
+% hold on
+% pzmap(sysLQI2{nn,1})
+% pzmap(sysLQI2{nn,2})
+% pzmap(sysLQI2{nn,3})
+% for ii = 1:length(s_W)
+% 	legstr(ii) = sprintf("max(thRef) = %.2f", s_th(ii));
+% end
+% if zoomEnabled; xlim([-1.05 0.01]); ylim([-0.01 0.26]); end
+% legend(['FLC PI', legstr], 'Location','northwest')
+% hold
 
 % myfig(10);
 % step(sysLQI2{4,1})
@@ -157,5 +328,44 @@ hold
 % step(sysLQI2{4,3})
 % legend(legstr, 'Location','northwest')
 
-myfig(11);
-bode(sysLQI2{2,2})
+% myfig(10, [0 0.70 1000 400]);
+% bode(sysLQI2{1,1})
+% hold on
+% bode(sysLQI2{1,2})
+% bode(sysLQI2{1,3})
+% for ii = 1:length(s_W)
+% 	legstr(ii) = sprintf("max(py) = %.2f", s_py(ii));
+% end
+% % 	if zoomEnabled; xlim([-0.21 0.01]); ylim([-0.01 0.26]); end
+% legend(legstr, 'Location','northwest')
+
+
+% myfig(11, [0 0.70 1000 400]);
+% step(sysLQI2{1,1})
+% hold on
+% step(sysLQI2{1,2})
+% step(sysLQI2{1,3})
+% for ii = 1:length(s_W)
+% 	legstr(ii) = sprintf("max(py) = %.2f", s_py(ii));
+% end
+% % 	if zoomEnabled; xlim([-0.21 0.01]); ylim([-0.01 0.26]); end
+% legend(legstr, 'Location','northwest')
+
+
+%% Export figures
+% ---------------------------------
+if ispc
+	% Path to folder on windows
+	figSaveDir = "c:\Users\Mrotr\Git\Repos\CA9_Writings\Graphics"; % Windows type path
+else
+	% Set path to git folder on mac
+	figSaveDir = "/Users/martin/Documents/Git/Repos/CA9_Writings/Graphics"; % Windows type path
+end
+
+exportFileType = ".png";
+figNameArray = strcat(figNameArray, exportFileType);
+
+% figSaveDir = "H:/Offshore_TEMP/USERS/MROTR/wtLinWork"; % Macos type path
+createNewFolder = 1; % Folder name to save figures:
+resolution = 400;
+myfigexport(figSaveDir, figArray, figNameArray, createNewFolder, "LQI pole zero", resolution)

@@ -686,7 +686,7 @@ Clqi = [Clqr	zeros(3,1)];
 
 
 % Calculate LQI gains
-[Klqi, S, P] = lqr(Alqi, Bulqi, Qlqi, R, 0);
+[Klqi, S, P] = lqr(Alqi, Bulqi, Qlqi, R, 0)
 
 
 % Closed loop system with integrator:
