@@ -773,7 +773,7 @@ Ti = Kp/((2*pi)/60 * Klqi(4)); % Kp/Ki
 % scheduling og gearratio som her: Kp = -0.058 = 1/38.2 * 0.5841 * -3.830
 % Hvor gearratio er 38.2 og gain scheduling er 0.5841
 
-LQIgains = [Kpy Kvy Kp Ti]
+LQIctrlParams = [Kpy Kvy Kp Ti]
 
 %% Export figures
 % ---------------------------------

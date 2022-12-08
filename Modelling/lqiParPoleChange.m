@@ -1,8 +1,8 @@
 clc;clear;
 close all;
 
-load('wtLinScriptData.mat', 'Alqi', 'Bulqi', 'Bdlqi', 'Clqi', 'sysNoFLC2', ...
-	'distIndex')
+load('wtLinScriptData.mat', 'Alqi', 'Bulqi', 'Bdlqi', 'Clqi', 'sys', ...
+	'sysNoFLC2', 'distIndex')
 
 
 
@@ -21,7 +21,7 @@ s_thdef = 5;		% [deg] - Pitch actuator
 
 s_py = [s_pydef s_pydef*0.5 s_pydef*0.25];				% [m] - Fore-aft position
 s_vy = [s_vydef s_vydef*0.5 s_vydef*0.25];			% [m] - Fore-aft velocity
-s_W	 = [s_Wdef	s_Wdef*0.5 s_Wdef*0.25];	% [rpm] - Rotor speed
+s_W	 = [s_Wdef	s_Wdef*0.5  s_Wdef*0.25];	% [rpm] - Rotor speed
 s_Wi = [s_Widef s_Widef*0.5 s_Widef*0.25];		% [rpm] Rotor speed integrator state
 
 s_th = [s_thdef*0.2 s_thdef*0.5 s_thdef];				% [deg] - Pitch actuator
@@ -147,11 +147,12 @@ close all
 
 % Each cell row is an arrow, each cell column from 1 -> 5 represents each
 % figure plot. 0 in a cokumn means that that plot does not have an arrow.
-arrowCell = {0, [0.85 0.84; 0.87 0.73], 0, 0, [0.85 0.85; 0.87 0.83]
+arrowCell = {0, [0.85 0.84; 0.85 0.73], 0, 0, [0.85 0.85; 0.87 0.83]
 			0, [0.78 0.82; 0.53 0.53], 0, 0, [0.76 0.6; 1-0.66 1-0.67]
 			0, [0.6 0.2; 0.53 0.53], [0.7 0.2; 0.53 0.53], 0, [0.6 0.62; 1-0.67 0.49]
-			0, 0, 0, 0, [0.76 0.62; 0.66 0.67]
-			0, 0, 0, 0, [0.62 0.22; 0.67 0.52]};
+			0, [0.85 0.84; 1-0.86 1-0.73], 0, 0, [0.76 0.62; 0.66 0.67]
+			0, 0, 0, 0, [0.62 0.22; 0.67 0.52]
+			0, 0, 0, 0, [0.85 0.85; 1-0.88 1-0.84]};
 
 
 % Box
@@ -192,7 +193,7 @@ for nn = 1:5
 	for ii = 1:length(s_W)
 		legStr(ii) = sprintf(strcat('max(', string(variableArray(nn)), ') = %.2f'), sArray(nn,ii));
 	end
-	legend(['FLC PI', legStr], 'Location','northwest')
+	legend(['Uncontrolled', legStr], 'Location','northwest')
 	title(strcat("Pole-zero map with varying max(", variableArray(nn), ")"))
 	hold off
 	if xlimCell{nn} ~= 0
@@ -242,7 +243,7 @@ for nn = 1:5
 	for ii = 1:length(s_W)
 		legStr(ii) = sprintf(strcat('max(', string(variableArray(nn)), ') = %.2f'), sArray(nn,ii));
 	end
-	legend(['FLC PI', legStr], 'Location','northwest')
+	legend(['Uncontrolled', legStr], 'Location','northwest')
 	title(strcat("Pole-zero map with varying max(", variableArray(nn), ") - Zoomed"))
 	hold off
 	if xlimCell{nn} ~= 0
@@ -258,17 +259,21 @@ end
 %% Steps
 for nn = 1:5
 	figNo = nn+100;
-	f = myfig(figNo, [0.7 0.70 600 500]);
+	f = myfig(figNo, [0.7 0.70 650 450]);
 	step(sysLQI2{nn,1})
 	hold on
 	step(sysLQI2{nn,2})
 	step(sysLQI2{nn,3})
+	a = findobj(gcf,'type','line');
+	for i = 1:length(a)
+    	set(a(i), 'linewidth',1.5);  %change linewidth
+	end
 	% Create legends:
 	for ii = 1:length(s_W)
 		legStr(ii) = sprintf(strcat('max(', string(variableArray(nn)), ') = %.2f'), sArray(nn,ii));
 	end
 	legend(legStr, 'Location','northeast')
-	title(strcat("Pole-zero map with varying max(", variableArray(nn), ")"))
+	title(strcat("Disturbance step response with varying max(", variableArray(nn), ")"))
 	hold off
 % 	if xlimCell{nn} ~= 0
 % 		xlim(xlimCell{nn})
@@ -282,8 +287,35 @@ for nn = 1:5
 end
 
 
+%% Bode
+for nn = 1:5
+	figNo = nn+200;
+	f = myfig(figNo, [0.7 0.70 600 500]);
+	bode(sysLQI2{nn,1})
+	hold on
+	bode(sysLQI2{nn,2})
+	bode(sysLQI2{nn,3})
+	% Create legends:
+	for ii = 1:length(s_W)
+		legStr(ii) = sprintf(strcat('max(', string(variableArray(nn)), ') = %.2f'), sArray(nn,ii));
+	end
+	legend(legStr, 'Location','northeast')
+	title(strcat("Bode plot with varying max(", variableArray(nn), ")"))
+	hold off
+% 	if xlimCell{nn} ~= 0
+% 		xlim(xlimCell{nn})
+% 	end
+% 	if ylimCell{nn} ~= 0
+% 		ylim(ylimCell{nn})
+% 	end
+	grid on
+	figArray = [figArray f];
+	figNameArray = [figNameArray strcat(string(figNo), '_bode_', string(variableArray(nn)))];
+end
 
-% % W and Wi
+
+
+%% W and Wi
 % myfig(2, [0 0.25 1000 400]);
 % for nn = 3:4
 % 	subplot(1,2,nn-2)
@@ -302,7 +334,7 @@ end
 % 		end
 % 	end
 % 	if zoomEnabled; xlim([-1.05 0.01]); ylim([-0.01 0.26]); end
-% 	legend(['FLC PI', legstr], 'Location','northwest')
+% 	legend(['Uncontrolled', legstr], 'Location','northwest')
 % 	hold off
 % end
 % 
@@ -318,7 +350,7 @@ end
 % 	legstr(ii) = sprintf("max(thRef) = %.2f", s_th(ii));
 % end
 % if zoomEnabled; xlim([-1.05 0.01]); ylim([-0.01 0.26]); end
-% legend(['FLC PI', legstr], 'Location','northwest')
+% legend(['Uncontrolled', legstr], 'Location','northwest')
 % hold
 
 % myfig(10);
