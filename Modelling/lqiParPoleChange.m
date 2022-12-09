@@ -13,18 +13,18 @@ load('wtLinScriptData.mat', 'Alqi', 'Bulqi', 'Bdlqi', 'Clqi', 'sys', ...
 % DEFAULT VALUES ->
 s_pydef = 5;		% [m] - Fore-aft position
 s_vydef = 1;		% [m] - Fore-aft velocity
-s_Wdef = 1;		% [rpm] - Rotor speed
+s_Wdef = 1;			% [rpm] - Rotor speed
 s_Widef = s_Wdef*5;	% [rpm] Rotor speed integrator state
 
 s_thdef = 5;		% [deg] - Pitch actuator
 % <- DEFAULT VALUES
 
-s_py = [s_pydef s_pydef*0.5 s_pydef*0.25];				% [m] - Fore-aft position
-s_vy = [s_vydef s_vydef*0.5 s_vydef*0.25];			% [m] - Fore-aft velocity
-s_W	 = [s_Wdef	s_Wdef*0.5  s_Wdef*0.25];	% [rpm] - Rotor speed
+s_py = [s_pydef s_pydef*0.5 s_pydef*0.25];		% [m] - Fore-aft position
+s_vy = [s_vydef s_vydef*0.5 s_vydef*0.25];		% [m] - Fore-aft velocity
+s_W	 = [s_Wdef	s_Wdef*0.5  s_Wdef*0.25];		% [rpm] - Rotor speed
 s_Wi = [s_Widef s_Widef*0.5 s_Widef*0.25];		% [rpm] Rotor speed integrator state
 
-s_th = [s_thdef*0.2 s_thdef*0.5 s_thdef];				% [deg] - Pitch actuator
+s_th = [s_thdef*0.2 s_thdef*0.5 s_thdef];		% [deg] - Pitch actuator
 
 sArray = [s_py;s_vy;s_W;s_Wi;s_th];
 % -----------------
@@ -132,6 +132,14 @@ set(groot,'DefaultAxesXGrid','on')
 set(groot,'DefaultAxesYGrid','on')
 % Not working for some reason on pzmaps and steps
 
+
+% Extract default color codes for figure plots
+defColors = get(groot,'defaultAxesColorOrder');
+defCol.blue = defColors(1,:);
+defCol.red = defColors(2,:);
+defCol.yellow = defColors(3,:);
+defCol.purple = defColors(4,:);
+
 % Initialize figure array and figure name array
 figArray = [];
 figNameArray = [];
@@ -170,10 +178,10 @@ for nn = 1:5
 	pzmap(sysLQI2{nn,1})
 	pzmap(sysLQI2{nn,2})
 	pzmap(sysLQI2{nn,3})
-	a = findobj(gca,'type','line');
+	a = findobj(gca, 'type', 'line');
 	for i = 1:length(a)
-    	set(a(i),'markersize',8);	% change marker size
-    	set(a(i), 'linewidth',1.5); % change linewidth
+    	set(a(i), 'markersize', 8);	% change marker size
+    	set(a(i), 'linewidth', 1.5); % change linewidth
 	end
 	% Add arrows
 	for ii = 1:length([arrowCell{:,1}])
@@ -230,7 +238,7 @@ for nn = 1:5
 	a = findobj(gca,'type','line');
 	for i = 1:length(a)
     	set(a(i),'markersize',8); %change marker size
-    	set(a(i), 'linewidth',2);  %change linewidth
+    	set(a(i), 'linewidth',1.5);  %change linewidth
 	end
 	% Add arrows
 	for ii = 1:length([arrowCell{:,1}])
@@ -257,23 +265,38 @@ for nn = 1:5
 end
 
 %% Steps
+ylabelArray = ["Position [m]", "Velocity [m/s]", "Angular velocity [rad/s]"]
+
 for nn = 1:5
+	% Pull step data:
+	for ii = 1:3
+		[y{ii}, tOut{ii}] = step(sysLQI2{nn,ii}, 100); % Step for 100 seconds
+	end
+	
+	% Plot the steps
 	figNo = nn+100;
 	f = myfig(figNo, [0.7 0.70 650 450]);
-	step(sysLQI2{nn,1})
-	hold on
-	step(sysLQI2{nn,2})
-	step(sysLQI2{nn,3})
-	a = findobj(gcf,'type','line');
-	for i = 1:length(a)
-    	set(a(i), 'linewidth',1.5);  %change linewidth
+	for qq = 1:3
+		subplot(3,1,qq)
+		plot(tOut{1}, y{1}(:,qq), 'Color', defCol.red, 'linewidth',1.3)
+		hold on
+		plot(tOut{2}, y{2}(:,qq), 'Color', defCol.yellow, 'linewidth',1.3)
+		plot(tOut{3}, y{3}(:,qq), 'Color', defCol.purple, 'linewidth',1.3)
+		xlim([0 100])
+		% Set title on first subplot
+		if qq == 1, title(strcat("Disturbance step response with varying max(", variableArray(nn), ")")), end
+		% Set legend and xlabel on last subplot
+		if qq == 3 
+			% Create legends:
+			for ii = 1:length(s_W)
+				legStr(ii) = sprintf(strcat('max(', string(variableArray(nn)), ') = %.2f'), sArray(nn,ii));
+			end
+			legend(legStr)
+			xlabel('Time [s]')
+		end
+		ylabel(ylabelArray(qq))
 	end
-	% Create legends:
-	for ii = 1:length(s_W)
-		legStr(ii) = sprintf(strcat('max(', string(variableArray(nn)), ') = %.2f'), sArray(nn,ii));
-	end
-	legend(legStr, 'Location','northeast')
-	title(strcat("Disturbance step response with varying max(", variableArray(nn), ")"))
+	
 	hold off
 % 	if xlimCell{nn} ~= 0
 % 		xlim(xlimCell{nn})
@@ -288,30 +311,30 @@ end
 
 
 %% Bode
-for nn = 1:5
-	figNo = nn+200;
-	f = myfig(figNo, [0.7 0.70 600 500]);
-	bode(sysLQI2{nn,1})
-	hold on
-	bode(sysLQI2{nn,2})
-	bode(sysLQI2{nn,3})
-	% Create legends:
-	for ii = 1:length(s_W)
-		legStr(ii) = sprintf(strcat('max(', string(variableArray(nn)), ') = %.2f'), sArray(nn,ii));
-	end
-	legend(legStr, 'Location','northeast')
-	title(strcat("Bode plot with varying max(", variableArray(nn), ")"))
-	hold off
-% 	if xlimCell{nn} ~= 0
-% 		xlim(xlimCell{nn})
+% for nn = 1:5
+% 	figNo = nn+200;
+% 	f = myfig(figNo, [0.7 0.70 600 500]);
+% 	bode(sysLQI2{nn,1})
+% 	hold on
+% 	bode(sysLQI2{nn,2})
+% 	bode(sysLQI2{nn,3})
+% 	% Create legends:
+% 	for ii = 1:length(s_W)
+% 		legStr(ii) = sprintf(strcat('max(', string(variableArray(nn)), ') = %.2f'), sArray(nn,ii));
 % 	end
-% 	if ylimCell{nn} ~= 0
-% 		ylim(ylimCell{nn})
-% 	end
-	grid on
-	figArray = [figArray f];
-	figNameArray = [figNameArray strcat(string(figNo), '_bode_', string(variableArray(nn)))];
-end
+% 	legend(legStr, 'Location','northeast')
+% 	title(strcat("Bode plot with varying max(", variableArray(nn), ")"))
+% 	hold off
+% % 	if xlimCell{nn} ~= 0
+% % 		xlim(xlimCell{nn})
+% % 	end
+% % 	if ylimCell{nn} ~= 0
+% % 		ylim(ylimCell{nn})
+% % 	end
+% 	grid on
+% 	figArray = [figArray f];
+% 	figNameArray = [figNameArray strcat(string(figNo), '_bode_', string(variableArray(nn)))];
+% end
 
 
 

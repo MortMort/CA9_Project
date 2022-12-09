@@ -3,7 +3,7 @@ clc;clear;close all;
 % The purpose of this script is to make comparative plots of the linear
 % model with FLC vs. my LQI controller.
 
-load('wtLinScriptData.mat')
+load('wtLinScriptData.mat', 'sys', 'sysLQI')
 
 
 % Default figure dimensions and location based on # of plots in subplot:
@@ -17,6 +17,8 @@ fontSize.legSmall = 9;
 fontSize.title = 13;
 fontSize.label = 11;
 
+% set(groot,'DefaultAxesXGrid','on')
+% set(groot,'DefaultAxesYGrid','on')
 
 % Make figure array
 figArray = [];
@@ -28,28 +30,28 @@ figNameArray = [];
 f = myfig(1, figSize.two);
 subplot(2,1,1)
 [mag, ~, wout] = bode(sys.vfree_vy);
-semilogx((wout * 1/pi), mag2db(squeeze(mag)))
+semilogx((wout * 1/(2*pi)), mag2db(squeeze(mag)))
 hold on
 [mag, ~, wout] = bode(sysLQI.vfree_vy);
-semilogx((wout * 1/pi), mag2db(squeeze(mag)))
+semilogx((wout * 1/(2*pi)), mag2db(squeeze(mag)))
 title('Linear model closed loop bode from disturbance $v_{free}$ to outupt $v_y$', ...
 	'FontSize', fontSize.title, 'interpreter','latex')
 xlim([10^(-2) 0.3])
 % ylim([-60 -10])
 ylabel('Magnitude [dB]', 'FontSize', fontSize.label, 'interpreter','latex')
-grid
+grid on
 legend(["FLC PI", "LQI"], 'FontSize', fontSize.legSmall, 'interpreter','latex')
 
 subplot(2,1,2)
 [~, phase, wout] = bode(sys.vfree_vy);
-semilogx((wout * 1/pi), squeeze(phase-360))
+semilogx((wout * 1/(2*pi)), squeeze(phase-360))
 hold on
 [~, phase,wout] = bode(sysLQI.vfree_vy);
-semilogx((wout * 1/pi), squeeze(phase-360))
+semilogx((wout * 1/(2*pi)), squeeze(phase-360))
 xlim([10^(-2) 0.3])
 xlabel('Frequency [Hz]', 'FontSize', fontSize.label, 'interpreter','latex')
 ylabel('Phase [deg]', 'FontSize', fontSize.label, 'interpreter','latex')
-grid
+grid on
 
 figArray = [figArray f];
 figNameArray = [figNameArray "script_vfreeTovy"];
@@ -59,28 +61,28 @@ figNameArray = [figNameArray "script_vfreeTovy"];
 f = myfig(2, figSize.two);
 subplot(2,1,1)
 [mag, ~, wout] = bode(sys.vfree_W);
-semilogx((wout * 1/pi), mag2db(squeeze(mag)))
+semilogx((wout * 1/(2*pi)), mag2db(squeeze(mag)))
 hold on
 [mag, ~, wout] = bode(sysLQI.vfree_W);
-semilogx((wout * 1/pi), mag2db(squeeze(mag)))
+semilogx((wout * 1/(2*pi)), mag2db(squeeze(mag)))
 title('Linear model closed loop bode from disturbance $v_{free}$ to output $\Omega$', ...
 	'FontSize', fontSize.title, 'interpreter','latex')
 xlim([10^(-2) 0.3])
 % ylim([-60 -10])
 ylabel('Magnitude [dB]', 'FontSize', fontSize.label, 'interpreter','latex')
-grid
+grid on
 legend(["FLC PI", "LQI"], 'FontSize', fontSize.legSmall, 'interpreter','latex')
 
 subplot(2,1,2)
 [~, phase, wout] = bode(sys.vfree_W);
-semilogx((wout * 1/pi), squeeze(phase-360))
+semilogx((wout * 1/(2*pi)), squeeze(phase-360))
 hold on
 [~, phase,wout] = bode(sysLQI.vfree_W);
-semilogx((wout * 1/pi), squeeze(phase-360))
+semilogx((wout * 1/(2*pi)), squeeze(phase-360))
 xlim([10^(-2) 0.3])
 xlabel('Frequency [Hz]', 'FontSize', fontSize.label, 'interpreter','latex')
 ylabel('Phase [deg]', 'FontSize', fontSize.label, 'interpreter','latex')
-grid
+grid on
 
 figArray = [figArray f];
 figNameArray = [figNameArray "script_vfreeToW"];

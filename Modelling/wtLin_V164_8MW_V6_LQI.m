@@ -787,14 +787,14 @@ LQIctrlParams = [Kpy Kvy Kp Ti]
 
 %% Save to a .mat file so i can use the data at home:
 
-% close all
-% if ispc
-% 	% Windows PC
-% 	save("c:\Users\Mrotr\Git\Repos\CA9_Project\Modelling\wtLinScriptData.mat")
-% else
-% 	% Mac
-% 	save("/Users/martin/Documents/Git/Repos/CA9_Project/Modelling/wtLinScriptData.mat")
-% end
+close all
+if ispc
+	% Windows PC
+	save("c:\Users\Mrotr\Git\Repos\CA9_Project\Modelling\wtLinScriptData.mat")
+else
+	% Mac
+	save("/Users/martin/Documents/Git/Repos/CA9_Project/Modelling/wtLinScriptData.mat")
+end
 
 %% Functions
 % =========================================================================
