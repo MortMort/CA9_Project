@@ -3,12 +3,23 @@ clc; clear; close all;
 % or more simulations. This first part does not have to be run more than
 % once for every int file. One can start from "Work with data" and down.
 
-addpath('C:\repo\lac-matlab-toolbox')
+if ispc
+	% PC path
+	addpath('C:\repo\lac-matlab-toolbox')
+else
+	% Mac path
+	% I DONT HAVE THE LAC TOOLBOX IN MY REPOOOO
+end
+
 
 % Go to the folder location of this script (such that ctrl + enter always
 % works)
 filePath = matlab.desktop.editor.getActiveFilename;
-fileNameStartIndex = max(strfind(filePath, "\"));
+if ispc
+	fileNameStartIndex = max(strfind(filePath, "\"));
+else
+	fileNameStartIndex = max(strfind(filePath, "/"));
+end
 scriptFolder = filePath(1:fileNameStartIndex);
 cd(scriptFolder)
 clear("filePath", "fileNameStartIndex")
@@ -58,15 +69,26 @@ end
 % 				"h:\Offshore_TEMP\USERS\MROTR\Investigations\001_DLC11_V164_8MW\008_detunedFLCnoFATD\05_000\Loads\INT\"
 % 				"h:\Offshore_TEMP\USERS\MROTR\Investigations\001_DLC11_V164_8MW\007_Baseline_fatdOn\001\Loads\INT\"
 % 				];
-			
-simDirArray = [
-	"c:\Users\Mrotr\Git\Repos\CA9_Project\VTStestPlotting\intFiles\lqi-023\"
-	"c:\Users\Mrotr\Git\Repos\CA9_Project\VTStestPlotting\intFiles\lqi-021_op_12ms\"
-	"c:\Users\Mrotr\Git\Repos\CA9_Project\VTStestPlotting\intFiles\lqi-022_op_26ms\"
-	"c:\Users\Mrotr\Git\Repos\CA9_Project\VTStestPlotting\intFiles\nofatd-002_BaselineV2\"
-	"c:\Users\Mrotr\Git\Repos\CA9_Project\VTStestPlotting\intFiles\detuned-05_00\"
-	"c:\Users\Mrotr\Git\Repos\CA9_Project\VTStestPlotting\intFiles\fatdOn-001\"
-	];
+
+if ispc
+	simDirArray = [
+			"h:\Offshore_TEMP\USERS\MROTR\Investigations\001_DLC11_V164_8MW\006_CustomController\023\Loads\INT\"
+			"h:\Offshore_TEMP\USERS\MROTR\Investigations\001_DLC11_V164_8MW\006_CustomController\021_op12ms\Loads\INT\"
+			"h:\Offshore_TEMP\USERS\MROTR\Investigations\001_DLC11_V164_8MW\006_CustomController\022_op26ms\Loads\INT\"
+			"h:\Offshore_TEMP\USERS\MROTR\Investigations\001_DLC11_V164_8MW\005_Baseline2\002_BaselineV2\Loads\INT\"				"h:\Offshore_TEMP\USERS\MROTR\Investigations\001_DLC11_V164_8MW\008_detunedFLCnoFATD\05_000\Loads\INT\"
+			"h:\Offshore_TEMP\USERS\MROTR\Investigations\001_DLC11_V164_8MW\007_Baseline_fatdOn\001\Loads\INT\"
+				];
+else
+	% Mac
+	simDirArray = [
+		"/Users/martin/Documents/Git/Repos/CA9_Project/VTStestPlotting/intFiles/lqi-023/"
+		"/Users/martin/Documents/Git/Repos/CA9_Project/VTStestPlotting/intFiles/lqi-021_op_12ms/"
+		"/Users/martin/Documents/Git/Repos/CA9_Project/VTStestPlotting/intFiles/lqi-022_op_26ms/"
+		"/Users/martin/Documents/Git/Repos/CA9_Project/VTStestPlotting/intFiles/nofatd-002_BaselineV2/"
+		"/Users/martin/Documents/Git/Repos/CA9_Project/VTStestPlotting/intFiles/detuned-05_00/"
+		"/Users/martin/Documents/Git/Repos/CA9_Project/VTStestPlotting/intFiles/fatdOn-001/"
+		];
+end
 
 simFolders = [	
 				simDirArray(1)
@@ -109,7 +131,11 @@ save(strcat("c:\Users\Mrotr\OneDrive - Aalborg Universitet\Control and Automatio
 % ---------------------------------
 clc; clear; close all;
 
-load("c:\Users\Mrotr\OneDrive - Aalborg Universitet\Control and Automation\3. Semester\POSC\Project\VTSintData");
+if ispc
+	load("c:\Users\Mrotr\OneDrive - Aalborg Universitet\Control and Automation\3. Semester\POSC\Project\VTSintData");
+else
+	load("/Users/martin/Library/CloudStorage/OneDrive-AalborgUniversitet/Control and Automation/3. Semester/POSC/Project/VTSintData");
+end
 
 % Treat data
 % ---------------------------------
@@ -119,6 +145,7 @@ if ispc
 	addpath('c:\Users\Mrotr\Git\Repos\CA9_Project\intFileMatlabAnalysis\')
 else
 	% Mac
+	addpath('../intFileMatlabAnalysis/')
 end
 
 % Init sensor arrays, names, and such
@@ -128,9 +155,9 @@ sensorSetupInit_senSetup2
 
 
 % Free wind, blade pitch, Rotor speed, Generator torque
-% f = myfigplot(100, [senIdx.Vhfree senIdx.Pi1 senIdx.Omega senIdx.GenMom], wantedSims, Xdata, Ydata, titleArray, ylabelArray, simNames, 1, xLimDef1, 0);
+% f = myfigplot(figNo00, [senIdx.Vhfree senIdx.Pi1 senIdx.Omega senIdx.GenMom], wantedSims, Xdata, Ydata, titleArray, ylabelArray, simNames, 1, xLimDef1, 0);
 % figArray = [figArray f];
-% figNameArray = [figNameArray strcat(setupPrefix, "VfreeToMgen.png")];
+% figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "VfreeToMgen.png")];
 
 dimYdata = size(Ydata)
 
@@ -175,7 +202,7 @@ set(groot, 'defaultPolaraxesTickLabelInterpreter', 'latex')
 set(groot, 'defaultTextInterpreter', 'latex')
 
 
-set(groot,'defaultAxesFontSize', 11)					% Default is 10
+set(groot,'defaultAxesFontSize', 13)					% Default is 10
 set(groot,'defaultAxesTitleFontSizeMultiplier', 1.1)	% Default is 1.1
 % set(groot, 'defaultAxesLabelFontSize', 10);			% Default is ??
 
@@ -186,26 +213,9 @@ set(groot,'defaultAxesTitleFontSizeMultiplier', 1.1)	% Default is 1.1
 % get(groot, 'factory')
 
 
-% (EDIT)
-selectedSimSetup = 1;
+xLimDef = [0 1000]; % Default xlim (0 -> 600 seconds)
+xLimFftDef = [0 0.6]; % Default FFT xlim (0 -> 0.6 Hz)
 
-if selectedSimSetup == 1
-	wantedSims = [1 4 5];
-elseif selectedSimSetup == 2
-	wantedSims = [1 2];
-elseif selectedSimSetup == 3
-	wantedSims = [1 2 3];
-elseif selectedSimSetup == 4
-	wantedSims = [1 2 3 4];
-elseif selectedSimSetup == 5
-	wantedSims = [1 2 3 4 5];
-elseif selectedSimSetup == 6
-	wantedSims = [1 2 3 4 5 6];
-% elseif selectedSimSetup == 7
-% 	wantedSims = [1 2 3 4 5 6 7];
-% elseif selectedSimSetup == 8
-% 	wantedSims = [1 2 3 4 5 6 7 8];
-end
 
 % Wind speed index:
 % 1 = 12 m/s
@@ -213,59 +223,151 @@ end
 % 3 = 26 m/s
 wSpdIdx = 2;
 
-xLimDef1 = [0 1000]; % Default xlim (0 -> 600 seconds)
-xLimFftDef1 = [0 0.6]; % Default FFT xlim (0 -> 0.6 Hz)
-yLimDef1 = [0 1];
 
-ylimTest = [0 1;0 2;0 3;0 4]
+% FIGURE SET 1
+% --------------------------
+
+% (EDIT)
+wantedSims = [1 5 4];
+
+
+% The 1P and 3P frequencies as observed in the Rotor Azimuth plot
+P1 = 0.174; P3 = 0.522; % Hz
 
 % Wind and power
-f = myfigplot(1, [senIdx.Vhfree, senIdx.Power], wantedSims, ...
-	Xdata(:,1), Ydata(:,wSpdIdx), titleArray, ylabelArray, simNames(:,wSpdIdx), 1, xLimDef1, 0, 1);
+figNo = 1;
+f = myfigplot(figNo, [senIdx.Vhfree, senIdx.Power], wantedSims, Xdata(:,1), ...
+	Ydata(:,wSpdIdx), titleArray, ylabelArray, simNames(:,wSpdIdx), 1, xLimDef, ...
+	{[13 19], [6000 8500]}, 1);
+axes=findobj(f,'type','axes');
+legend(axes(1), 'Location', 'southeast')
 
 figArray = [figArray f];
-figNameArray = [figNameArray strcat(setupPrefix, "00_.png")];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_wind_pow.png")];
+
 
 % FFT: PSI
-f = myfigplot(2, [senIdx.PSI], wantedSims, nf, sensorDataFFT(:,wSpdIdx), titleArray, ...
-	ylabelArray, simNames, 0, xLimFftDef1, [0 60], 1);
+figNo = 2;
+f = myfigplot(figNo, [senIdx.PSI], wantedSims, nf, sensorDataFFT(:,wSpdIdx), titleArray, ...
+	ylabelArray, simNames(:,wSpdIdx), 0, xLimFftDef, {[0 60]}, 1);
+
+axes=findobj(f,'type','axes');
+xline(axes(1), P1, '--', {'1P'}, 'LabelOrientation', ...
+				'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+xline(axes(1), P3, '--', {'3P'}, 'LabelOrientation', ...
+				'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+legend(axes(1),'Location','north')
 
 figArray = [figArray f];
-figNameArray = [figNameArray strcat(setupPrefix, "01_.png")];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_fftazi.png")];
 
-% Pull axes from previous figure.
-% axes=findobj(f,'type','axes')
-% xline(axes(1), 100) % Put a vertical line at first axes
 
 % Pitch, gen spd, foreaft pos, foreaft vel
-f = myfigplot(3, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, ...
-	Xdata(:,1), Ydata(:,wSpdIdx), titleArray, ylabelArray, simNames, 1, xLimDef1, 0, 1);
+figNo = 3;
+f = myfigplot(figNo, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, ...
+	Xdata(:,1), Ydata(:,wSpdIdx), titleArray, ylabelArray, simNames(:,wSpdIdx), 1, xLimDef, 0, 1);
+axes=findobj(f,'type','axes');
+legend(axes(4), 'Location', 'southeast')
 
 figArray = [figArray f];
-figNameArray = [figNameArray strcat(setupPrefix, "02_.png")];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_th_w_py_vy.png")];
 
 
 % FFT: Pitch, gen spd, foreaft pos, foreaft vel
-f = myfigplot(4, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, nf, sensorDataFFT(:,wSpdIdx), titleArray, ...
-	ylabelArray, simNames, 0, xLimFftDef1, [0 0.5; 0 3;0 1;0 0.2], 1);
+figNo = 4;
+f = myfigplot(figNo, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, ...
+	nf, sensorDataFFT(:,wSpdIdx), titleArray, ylabelArray, simNames(:,wSpdIdx), 0, ...
+	xLimFftDef, {[0 0.3], [0 2],[0 0.4],[0 0.1]}, 1);
+
+% Pull axes from previous figure.
+axes=findobj(f,'type','axes');
+xline(axes(4), P1, '--', {'1P'}, 'LabelOrientation', ...
+			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+% xline(axes(3), P3, '--', {'3P'}, 'LabelOrientation', ...
+% 			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+
+annotation(f, 'textarrow',[0.25 0.18],[0.9 0.88],'String','1st mode');
 
 figArray = [figArray f];
-figNameArray = [figNameArray strcat(setupPrefix, "01_.png")];
-
-
-% Plotting FFTs
-% ---------------
-% Changes Ydata -> sensorDataFFT, Xdata -> nf, 1 -> 0
-
-% x and y translation position and roll and pitch angle
-% f = myfigplot(200, [senIdx.xKF senIdx.yKF], wantedSims, nf, sensorDataFFT, ...
-% 	titleArray, ylabelArray, simNames, 0, xLimFftDef1, [0 1]);
-% figArray = [figArray f];
-% figNameArray = [figNameArray strcat(setupPrefix, "xPosyPosFFT.png")];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_fft_th_w_py_vy.png")];
 
 
 
+% FIGURE SET 2
+% --------------------------
 
+% (EDIT)
+wantedSims = [1 5];
+
+% The 1P and 3P frequencies as observed in the Rotor Azimuth plots
+P1 = 0.174; P3 = 0.522; % Hz
+
+% Pitch, gen spd, foreaft pos, foreaft vel
+figNo = 10;
+f = myfigplot(figNo, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, ...
+	Xdata(:,1), Ydata(:,wSpdIdx), titleArray, ylabelArray, simNames(:,wSpdIdx), 1, xLimDef, 0, 1);
+
+figArray = [figArray f];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_th_w_py_vy.png")];
+
+
+% FFT: Pitch, gen spd, foreaft pos, foreaft vel
+figNo = 11;
+f = myfigplot(figNo, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, ...
+	nf, sensorDataFFT(:,wSpdIdx), titleArray, ylabelArray, simNames(:,wSpdIdx), 0, ...
+	xLimFftDef, {[0 0.3], [0 2],[0 0.4],[0 0.1]}, 1);
+
+% Pull axes from previous figure.
+axes=findobj(f,'type','axes');
+xline(axes(4), P1, '--', {'1P'}, 'LabelOrientation', ...
+			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+xline(axes(3), P3, '--', {'3P'}, 'LabelOrientation', ...
+			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+
+figArray = [figArray f];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_fft_th_w_py_vy.png")];
+
+
+% Time ZOOM: Pitch, gen spd, foreaft pos, foreaft vel
+figNo = 12;
+f = myfigplot(figNo, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, ...
+	Xdata(:,1), Ydata(:,wSpdIdx), titleArray, ylabelArray, simNames(:,wSpdIdx), 1, [160 260], 0, 1);
+axes=findobj(f,'type','axes');
+legend(axes(4), 'Location', 'southeast')
+
+annotation(f, 'textarrow',[0.35 0.41],[0.13 0.16],'String','2nd mode oscillations');
+
+figArray = [figArray f];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_zoom_th_w_py_vy.png")];
+
+
+% Y-axis ZOOM: FFT - Pitch, gen spd, foreaft pos, foreaft vel
+figNo = 13;
+f = myfigplot(figNo, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, ...
+	nf, sensorDataFFT(:,wSpdIdx), titleArray, ylabelArray, simNames(:,wSpdIdx), 0, ...
+	xLimFftDef, {[0 0.04], [0 0.6],[0 0.1],[0 0.02]}, 1);
+
+% Pull axes from previous figure.
+axes=findobj(f,'type','axes');
+xline(axes(4), P1, '--', {'1P'}, 'LabelOrientation', ...
+			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+xline(axes(3), P1, '--', {'1P'}, 'LabelOrientation', ...
+			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+xline(axes(1), P1, '--', {'1P'}, 'LabelOrientation', ...
+			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+xline(axes(4), P3, '--', {'3P'}, 'LabelOrientation', ...
+			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+xline(axes(3), P3, '--', {'3P'}, 'LabelOrientation', ...
+			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+xline(axes(1), P3, '--', {'3P'}, 'LabelOrientation', ...
+			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+legend(axes(4),'Location','best')
+
+annotation(f, 'textarrow',[0.70 0.74],[0.89 0.84],'String','2nd mode');
+annotation(f, 'textarrow',[0.65 0.73],[0.24 0.18],'String','2nd mode');
+
+figArray = [figArray f];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_zoom_fft_th_w_py_vy.png")];
 
 %% OTHER PLOTTING SECTION
 
@@ -308,7 +410,7 @@ figNameArray = [figNameArray strcat(setupPrefix, "01_.png")];
 % plot(nt, simData.getElement('u_bar_thRef_deriv_lqi').Values.Data)
 % tstart = 295; tend = 360; % Xlim start for zoom 2
 % xline(300, '--', {'vfree', 'step'}, 'interpreter','latex', 'LabelOrientation', ...
-% 				'horizontal', 'LabelVerticalAlignment','top');
+% 				'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
 % title(sprintf('Zoom T = %.0f:%.0f s',tstart, tend), 'FontSize', 12, 'interpreter','latex')
 % xlim([tstart tend])
 % ylim([-1 4])
@@ -328,7 +430,7 @@ if ispc
 	figSaveDir = "c:\Users\Mrotr\Git\Repos\CA9_Writings\Graphics\TestResults\VTSplotting\";
 else
 	% Mac
-	disp('MAC PATH NOT DEFINED')
+	figSaveDir = "/Users/martin/Documents/Git/Repos/CA9_Writings/Graphics/TestResults/VTSplotting";
 end
 createNewFolder = 0;
 % I set the name of the folder where the images are saved to the .mat file
