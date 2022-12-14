@@ -1,0 +1,21 @@
+On IEC standard 61400-12-2 interpretation:
+
+-	AEP based on measurements and simulations is considered 0 for the wind speed bins outside the dataset which fullfills IEC standard
+- 	To follow the standard, dataset needs to
+		- have a minimum of 30 min sampled data for each wind bin -> 3 time series (incomplete bins are referred as the wind speed bins which include less than 3 measurements.)
+		- include at least 180h of measurement
+		- cover cut-in wind speed and 1.5* wind speed at 85% of the power rated (1.5*WSP(85%Prat))
+		(If the later requirement is not fullfilled, AEP is still calculated. If the calculated AEP is more than 95% of AEP extrapolated, dataset is accepted.)
+- 	For a calculation of Measured/Simulated AEP, values for the bins beyond the acceptable dataset are set to zero
+- 	AEP extrapolated is computed in two ways: (1) AEP extrapolated - according to IEC standard, for incomplete bins up to the cut-out wind speed, power is taken as a constant value equal to the last complete bins;
+	(2) AEP extrapolated Pref - for the incomplete bins up to the cut-out wind speed, power is taken from the reference power curve (this might be more correct due to derating of the turbine).
+- 	If there is a single incomplete bin below or equal to1.5* wind speed at 85% of the power rated (except for the cut-in wind speed), this bin is interpolated from the values of the adjacent bins
+	and the dataset is accepted.
+
+User has an option to set FlagInterpolAll=1 in the main srcipt (PowerPerformance_Mainscript.m) if he wants to force interpolation of the incomplete bins (across the whole dataset excluding the incomplete bins at the end of the dataset).
+In case of single incomplete bin below or equal to 1.5*WSP(85%Prat) (if NOT cut-in wind speed), this bin will automatically be interpolated even if the interpolation flags are deactivated.
+If FlagInterpolAll is deactivated and dataset includes >1 incomplete bin below 1.5*WSP(85%Prat), user will be asked whether he wants to force interpolation of these bins below 1.5*WSP(85%Prat).
+If there are three and more incomplete bins in a row, values for those bins will noy be interpolated even if the interpolation is forced by the user.
+
+
+

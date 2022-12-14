@@ -1,0 +1,8 @@
+%Parameter study input file
+
+%Parameter Definitions
+Par01->HUB:12:1 = 0.9,1.0,1.1 	% Variation in blade edgewise stiffness
+Par02->HUB:12:2 = Par01       	% Variation in blade edgewise stiffness
+Par03->HUB:12:3 = Par01       	% Variation in blade edgewise stiffness
+%Study Definitions
+Study01->Par01~Par02~Par03

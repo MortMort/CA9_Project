@@ -1,0 +1,1 @@
+Scripts in \+misc\ contain VLD legacy scripts for backward compatibility.

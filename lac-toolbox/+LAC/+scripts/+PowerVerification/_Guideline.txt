@@ -1,0 +1,3 @@
+Guideline available: https://wiki.tsw.vestas.net/display/LACWIKI/Power+Verification+Guideline
+
+

@@ -1,0 +1,1 @@
+matlab -noFigureWindows -r "addpath('W:\SOURCE\LACtoolbox'); staObj = LAC.vts.stapost('%SIMDIR%'); staObj.read; exit;"

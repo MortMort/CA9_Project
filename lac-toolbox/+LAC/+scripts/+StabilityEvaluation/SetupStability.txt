@@ -1,0 +1,155 @@
+#Input Setup file for Stability Analysis Tools: HAWCStab2 and HAWC2. version 2.0. 28.11.2016 16:31
+#version notes:
+#In this version, it is assumed that the VTS input blade file is available. Therefore there is no need of aerodynamics and structure data files.
+#V2.0 Changed end wind speed to V1 to use the 1-year wind instead of a default value for all turbines 
+
+#all comments must be preceeded by "#" to prevent conflicts with keywords
+
+#Date: 28-11-2016 16:31
+
+#------------------------- COMMON DEFINITION OF INPUT FILES: BEGIN
+
+#insert the folder\filename of the task file
+#taskFile: n/a
+
+#insert the folder\filename of the VTS input blade file
+VTSinputBladeFile: <>
+
+#insert the folder where to find statistics data file needed to extract mean rpm and mean pitch angle
+statisticsFolder: <>
+
+#insert the folder\filename to prep template
+prepTemplate: <>
+
+#insert the folder\filename+extension of prep executable
+prepEXE: w:\SOURCE\Prep002v05_031Beta.exe
+
+#------------------------- COMMON DEFINITION OF INPUT FILES: END
+
+
+
+#------------------------- HAWCStab2 INPUT FILES, EXECUTABLES AND MARGIN INFO: BEGIN
+
+#insert the folder\filename of HWC file
+HAWCStab2HWCfile: W:\SOURCE\StabilityTool\HWC\HWCInputs_HS2.txt
+
+#insert the start and stop rpm used in calculating margins. Example: rpmMargin: 4 12
+rpmMargin: 1 1.3
+
+#insert the damping at start and stop rpm used in calculating margins. Example: dampMargin: 0.4 0.1
+dampMargin: 0.75 0.25
+
+#insert frequency filter interval. Example: frequencyFilter: 0 1.5
+frequencyFilter: 0.0 5.0
+#------------------------- HAWCStab2 INPUT FILES, EXECUTABLES AND MARGIN INFO: END
+
+#------------------------- HAWC2 INPUT FILES AND EXECUTABLES: BEGIN
+
+#insert the folder\filename of HWC file
+HAWC2HWCfile: W:\SOURCE\StabilityTool\HWC\HWCInputs_H2Flutter.txt
+
+#------------------------- HAWC2 INPUT FILES AND EXECUTABLES: END
+
+
+#------------------------- LOAD CASE SECTION: BEGIN
+
+#1st load case
+
+/begin load cases: HS2speedup, HS2optimizer
+
+#define wind speeds to be simulated. It can be given as array or minmaxstep values.
+#Example 1: windSpeed: array 2 3 5 12
+#Example 2: windSpeed: minmaxstep 2 12 2
+windSpeed:  minmaxstep 8 V1 2
+
+#define blade pitch. After the keyword insert a string ('user' or 'statistics')
+#	-if 'user' is chosen then pitch values at each windSpeed must be given.
+#	-if 'statistics' is chosen the pitch will be calculated from statistics.
+#    The values (if any) following the string 'statistics' will be ignored
+# HAWC2 takes the pitch from the statistics (regardless of what the user defines here!)
+# Example 1. pitch: user 0.1 0.15 0.21
+# Example 2. pitch: statistics
+
+pitch: statistics
+
+
+#define rpm to be simulated. After the keyword insert a string ('user' or 'statistics') and 3 real values.
+#	-by the string options 'user' the 3 real values will be interpreted as
+#    min, max and step of the rpm, respectively.
+#	-by the string 'statistics' the 3 real values will be interpreted as lower fraction,
+#    upper fraction and step of the mean rpm taken from statistics values, respectively.
+#	Example1: rpm: user 5 10 0.5 gives minrpm = 5, maxrpm = 10 and steprpm = 0.5
+#	Example2: rpm: statistics 0.2 0.5 0.5 gives minrpm = meanrpm*(1-0.2), maxrpm = meanrpm*(1+0.5) and
+#             steprpm = 0.5; here the mean rpm is calculated from existing load cases
+# HAWC2 takes the rpm parameters from parameterHAWC2.m (regardless of what the user defines here!)
+
+rpm: statistics 0.1 0.35 0.3
+/end load cases: HS2speedup, HS2optimizer
+
+/begin load cases: HAWC2speedup
+
+#define wind speeds to be simulated. It can be given as array or minmaxstep values.
+#Example 1: windSpeed: array 2 3 5 12
+#Example 2: windSpeed: minmaxstep 2 12 2
+windSpeed:  minmaxstep 8 V1 2
+
+#define blade pitch. After the keyword insert a string ('user' or 'statistics')
+#	-if 'user' is chosen then pitch values at each windSpeed must be given.
+#	-if 'statistics' is chosen the pitch will be calculated from statistics.
+#    The values (if any) following the string 'statistics' will be ignored
+# HAWC2 takes the pitch from the statistics (regardless of what the user defines here!)
+# Example 1. pitch: user 0.1 0.15 0.21
+# Example 2. pitch: statistics
+
+pitch: statistics
+
+
+#define rpm to be simulated. After the keyword insert a string ('user' or 'statistics') and 3 real values.
+#	-by the string options 'user' the 3 real values will be interpreted as
+#    min, max and step of the rpm, respectively.
+#	-by the string 'statistics' the 3 real values will be interpreted as lower fraction,
+#    upper fraction and step of the mean rpm taken from statistics values, respectively.
+#	Example1: rpm: user 5 10 0.5 gives minrpm = 5, maxrpm = 10 and steprpm = 0.5
+#	Example2: rpm: statistics 0.2 0.5 0.5 gives minrpm = meanrpm*(1-0.2), maxrpm = meanrpm*(1+0.5) and
+#             steprpm = 0.5; here the mean rpm is calculated from existing load cases
+# HAWC2 takes the rpm parameters from parameterHAWC2.m (regardless of what the user defines here!)
+
+rpm: statistics 0.1 0.8 0.5
+/end load cases: HAWC2speedup
+
+#2nd load case
+
+/begin load cases: HS2campbell
+
+#define wind speeds to be simulated. It can be given as array or minmaxstep values.
+#Example 1. windSpeed: array 2 3 5 12
+#Example 2. windSpeed: minmaxstep 2 12 2
+
+windSpeed: minmaxstep 4 V1 0.5
+
+#define blade pitch. After the keyword insert a string ('user' or 'statistics')
+#	-if 'user' is chosen then pitch values at each windSpeed must be given.
+#	-if 'statistics' is chosen the pitch will be calculated from statistics.
+#    The values (if any) following the string 'statistics' will be ignored
+# HAWC2 takes the pitch from the statistics (regardless of what the user defines here!)
+# Example 1. pitch: user 0.1 0.15 0.21
+# Example 2. pitch: statistics
+
+pitch: statistics
+
+
+#define rpm to be simulated. After the keyword insert a string ('user' or 'statistics') and
+#3 real values (unless it is a Campbell load case!).
+#	-by the string options 'user' the 3 real values will be interpreted as
+#    min, max and step of the rpm, respectively.
+#	-by the string 'statistics' the 3 real values will be interpreted as lower fraction,
+#    upper fraction and step of the mean rpm taken from statistics values, respectively.
+#	Example1: rpm: user 5 10 0.5 gives minrpm = 5, maxrpm = 10 and steprpm = 0.5
+#	Example2: rpm: statistics 0.2 0.5 0.5 gives minrpm = meanrpm*(1-0.2), maxrpm = meanrpm*(1+0.5) and
+#             steprpm = 0.5; here the mean rpm is calculated from existing load cases
+# HAWC2 takes the rpm parameters from parameterHAWC2.m (regardless of what the user defines here!)
+
+rpm: statistics 0.1 0.40 0.5
+/end load cases: HS2campbell
+
+#------------------------- LOAD CASE SECTION: END

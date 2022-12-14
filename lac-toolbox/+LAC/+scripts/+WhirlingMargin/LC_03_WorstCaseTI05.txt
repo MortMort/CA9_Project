@@ -1,0 +1,37 @@
+* loadcases preceeded by an asterix will not be calculated!
+* IEC number is given between braces
+* rpm G V Vdir
+
+*** IEC 1.1: NORMAL PRODUCTION LOW TURBULENCE
+
+1110a Prod. 11-13 m/s Wdir=-6
+ntm 1 - 20 weib 11 13 0.5 LF 1.35
+0.1 2 10 -10 vexp -0.1 Iref 0.05
+
+1112a Prod. 11-13 m/s Wdir=-6
+ntm 1 - 20 weib 11 13 0.5 LF 1.35
+0.1 2 12 -10 vexp -0.1 Iref 0.05
+
+1114a Prod. 11-13 m/s Wdir=-6
+ntm 1 - 20 weib 11 13 0.5 LF 1.35
+0.1 2 14 -10 vexp -0.1 Iref 0.05  
+
+1116a Prod. 15-17 m/s Wdir=-6
+ntm 1 - 20 weib 15 17 0.5 LF 1.35
+0.1 2 16 -10 vexp -0.1 Iref 0.05  
+
+1118a Prod. 15-17 m/s Wdir=-6
+ntm 1 - 20 weib 15 17 0.5 LF 1.35
+0.1 2 18 -10 vexp -0.1 Iref 0.05  
+
+1120a Prod. 19-21 m/s Wdir=-6
+ntm 1 - 20 Weibull 19 21 0.5 LF 1.35
+0.1 2 20 -10 vexp -0.1 Iref 0.05  
+
+1122a Prod. 19-21 m/s Wdir=-6
+ntm 1 - 20 Weibull 19 21 0.5 LF 1.35
+0.1 2 22 -10 vexp -0.1 Iref 0.05  
+
+1124a Prod. 19-21 m/s Wdir=-6
+ntm 1 - 20 Weibull 19 21 0.5 LF 1.35
+0.1 2 24 -10 vexp -0.1 Iref 0.05  

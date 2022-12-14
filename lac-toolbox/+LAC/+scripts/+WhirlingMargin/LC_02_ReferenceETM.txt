@@ -1,0 +1,69 @@
+* loadcases preceeded by an asterix will not be calculated!
+* IEC number is given between braces
+* rpm G V Vdir
+
+*** IEC 1.1: NORMAL PRODUCTION
+
+1110a Prod. 11-13 m/s Wdir=-6
+etm 1 - 20 weib 11 13 0.5 LF 1.35
+0.1 2 10 -6  
+
+1112a Prod. 11-13 m/s Wdir=-6
+etm 1 - 20 weib 11 13 0.5 LF 1.35
+0.1 2 12 -6  
+
+1114a Prod. 11-13 m/s Wdir=-6
+etm 1 - 20 weib 11 13 0.5 LF 1.35
+0.1 2 14 -6  
+
+1116a Prod. 15-17 m/s Wdir=-6
+etm 1 - 20 weib 15 17 0.5 LF 1.35
+0.1 2 16 -6  
+
+1118a Prod. 15-17 m/s Wdir=-6
+etm 1 - 20 weib 15 17 0.5 LF 1.35
+0.1 2 18 -6  
+
+1120a Prod. 19-21 m/s Wdir=-6
+etm 1 - 20 Weibull 19 21 0.5 LF 1.35
+0.1 2 20 -6  
+
+1122a Prod. 19-21 m/s Wdir=-6
+etm 1 - 20 Weibull 19 21 0.5 LF 1.35
+0.1 2 22 -6  
+
+1124a Prod. 19-21 m/s Wdir=-6
+etm 1 - 20 Weibull 19 21 0.5 LF 1.35
+0.1 2 24 -6  
+
+1110b Prod. 11-13 m/s Wdir=6
+etm 21 - 40 weib 11 13 0.5 LF 1.35
+0.1 2 10 6  
+
+1112b Prod. 11-13 m/s Wdir=6
+etm 21 - 40 weib 11 13 0.5 LF 1.35
+0.1 2 12 6  
+
+1114b Prod. 11-13 m/s Wdir=6
+etm 21 - 40 weib 11 13 0.5 LF 1.35
+0.1 2 14 6  
+
+1116b Prod. 15-17 m/s Wdir=6
+etm 21 - 40 weib 15 17 0.5 LF 1.35
+0.1 2 16 6  
+
+1118b Prod. 15-17 m/s Wdir=6
+etm 21 - 40 weib 15 17 0.5 LF 1.35
+0.1 2 18 6  
+
+1120b Prod. 19-21 m/s Wdir=6
+etm 21 - 40 Weibull 19 21 0.5 LF 1.35
+0.1 2 20 6  
+
+1122b Prod. 19-21 m/s Wdir=6
+etm 21 - 40 Weibull 19 21 0.5 LF 1.35
+0.1 2 22 6  
+
+1124b Prod. 19-21 m/s Wdir=6
+etm 21 - 40 Weibull 19 21 0.5 LF 1.35
+0.1 2 24 6  

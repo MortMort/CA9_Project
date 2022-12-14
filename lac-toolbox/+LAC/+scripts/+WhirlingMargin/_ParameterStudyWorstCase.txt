@@ -1,0 +1,24 @@
+%Parameter study input file
+
+%Parameter Definitions
+Par01->HUB:12:1 = 0.9,1.0,1.1 	% Variation in blade edgewise stiffness
+Par02->HUB:12:2 = Par01       	% Variation in blade edgewise stiffness
+Par03->HUB:12:3 = Par01       	% Variation in blade edgewise stiffness
+Par04->BLD:16:1 = 1.010			% +1% on blade mass
+Par05->BLD:16:2 = 1.010			% +1% on blade mass
+Par06->BLD:16:3 = 1.010			% +1% on blade mass
+Par07->BLD:6:2  = 0.000			% 1st edge structural damping 0
+Par08->YAW:2:3  = 1.21E9 % Insert +10% on tilt stiffness
+Par09->YAW:2:3  = 9.90E8 % Insert -10% on tilt stiffness
+Par10->YAW:2:1  = 3.31E8 % Insert -10% on yaw stiffness
+Par11->YAW:2:2  = 3.31E8 % Insert -10% on yaw stiffness
+Par12->YAW:2:1  = 4.53E8 % Insert +10% on yaw stiffness
+Par13->YAW:2:2  = 4.53E8 % Insert +10% on yaw stiffness
+%Par14->Px_YawLimitProdCtrlStart = 20
+
+%Study Definitions
+Ref
+Study01->(Par01~Par02~Par03)~Par04~Par05~Par06~Par07~Par08~Par10~Par11
+Study02->(Par01~Par02~Par03)~Par04~Par05~Par06~Par07~Par09~Par12~Par13
+Study03->(Par01~Par02~Par03)~Par04~Par05~Par06~Par07~Par08~Par12~Par13
+Study04->(Par01~Par02~Par03)~Par04~Par05~Par06~Par07~Par09~Par10~Par11
