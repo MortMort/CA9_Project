@@ -8,6 +8,7 @@ if ispc
 	addpath('C:\repo\lac-matlab-toolbox')
 else
 	% Mac path
+	addpath('/Users/martin/Documents/Git/Repos/CA9_Project/lac-toolbox')
 	% I DONT HAVE THE LAC TOOLBOX IN MY REPOOOO
 end
 
@@ -47,16 +48,24 @@ intFileNames = [
 		   
 % Create the simulation names for plotting legends later
 wSpdStrArray = [" 12 m/s", " 16 m/s", " 26 m/s"];
-for ii = 1:length(wSpdStrArray)
-	simNames(:,ii) = strcat([
-			"LQI"
-			"LQI (OP 12 m/s)"
-			"LQI (OP 26 m/s)"
+% for ii = 1:length(wSpdStrArray)
+% 	simNames(:,ii) = strcat([
+% 			"LQI"
+% 			"LQI (OP 12 m/s tuning)"
+% 			"LQI (OP 26 m/s tuning)"
+% 			"FLC PI w.o. FATD"
+% 			"FLC PI detuned"
+% 			"FLC PI w. FATD"
+% 			], wSpdStrArray(ii));
+% end
+
+simNames= ["LQI"
+			"LQI (OP 12 m/s par.)"
+			"LQI (OP 26 m/s par.)"
 			"FLC PI w.o. FATD"
 			"FLC PI detuned"
 			"FLC PI w. FATD"
-			], wSpdStrArray(ii));
-end
+			];
 
 
 
@@ -124,17 +133,22 @@ end
 % Go back to the script folder
 cd(scriptFolder);
 % Save data as .mat
-save(strcat("c:\Users\Mrotr\OneDrive - Aalborg Universitet\Control and Automation\3. Semester\POSC\Project\",matFileName), "GenInfo", "simNames", "simFolders", "Xdata", "Ydata");
-
+if ispc
+	save(strcat("c:\Users\Mrotr\OneDrive - Aalborg Universitet\Control and Automation\3. Semester\POSC\Project\",matFileName), "GenInfo", "simNames", "simFolders", "Xdata", "Ydata");
+else
+	% Mac
+	save(strcat("/Users/martin/Library/CloudStorage/OneDrive-AalborgUniversitet/Control and Automation/3. Semester/POSC/Project/", matFileName), "GenInfo", "simNames", "simFolders", "Xdata", "Ydata");
+end
 
 %% Load and treat data
 % ---------------------------------
 clc; clear; close all;
 
+matFileName = "VTSintData";
 if ispc
-	load("c:\Users\Mrotr\OneDrive - Aalborg Universitet\Control and Automation\3. Semester\POSC\Project\VTSintData");
+	load(strcat("c:\Users\Mrotr\OneDrive - Aalborg Universitet\Control and Automation\3. Semester\POSC\Project\", matFileName));
 else
-	load("/Users/martin/Library/CloudStorage/OneDrive-AalborgUniversitet/Control and Automation/3. Semester/POSC/Project/VTSintData");
+	load(strcat("/Users/martin/Library/CloudStorage/OneDrive-AalborgUniversitet/Control and Automation/3. Semester/POSC/Project/", matFileName));
 end
 
 % Treat data
@@ -159,28 +173,28 @@ sensorSetupInit_senSetup2
 % figArray = [figArray f];
 % figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "VfreeToMgen.png")];
 
-dimYdata = size(Ydata)
+dimYdata = size(Ydata);
 
 % Create frequency indexes for ffts
 Ts = 0.04;				% Sampling period    
 Fs = 1/Ts;				% Sampling frequency
-for nn = 1:dimYdata(1)
-	for ii = 1:dimYdata(2)
+for nn = 1:size(Ydata,1)
+	for ii = 1:size(Ydata,2)
 		L{nn,ii} = length(Xdata{nn,ii});	% Number of samples
 		nf{nn,ii} = Fs.*(0:(L{nn,ii}/2))/L{nn,ii};	% Frequency index
 	end
 end
 
 % Create ffts
-for nn = 1:dimYdata(1)
-	for ii = 1:dimYdata(2)
+for nn = 1:size(Ydata,1)
+	for ii = 1:size(Ydata,2)
 		Y = abs(fft(Ydata{nn,ii}(:,sensorIDs)))/L{nn,ii};
 		sensorDataFFT{nn,ii}(:,sensorIDs) = Y(1:((end+1)/2),:); % Only one half of fft (up to nyquist frequency)
 	end
 end
 
 
-%% Compare Plotting
+%% 16 m/s compare Plotting
 close all
 
 % Start a figure cell array to later use for exporting figures
@@ -224,7 +238,7 @@ xLimFftDef = [0 0.6]; % Default FFT xlim (0 -> 0.6 Hz)
 wSpdIdx = 2;
 
 
-% FIGURE SET 1
+% FIGURE SET: LQI vs. FLC detuned vs. FLC
 % --------------------------
 
 % (EDIT)
@@ -237,10 +251,10 @@ P1 = 0.174; P3 = 0.522; % Hz
 % Wind and power
 figNo = 1;
 f = myfigplot(figNo, [senIdx.Vhfree, senIdx.Power], wantedSims, Xdata(:,1), ...
-	Ydata(:,wSpdIdx), titleArray, ylabelArray, simNames(:,wSpdIdx), 1, xLimDef, ...
+	Ydata(:,wSpdIdx), titleArray, ylabelArray, simNames, 1, xLimDef, ...
 	{[13 19], [6000 8500]}, 1);
 axes=findobj(f,'type','axes');
-legend(axes(1), 'Location', 'southeast')
+% legend(axes(2), 'Location', 'southeast')
 
 figArray = [figArray f];
 figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_wind_pow.png")];
@@ -249,7 +263,7 @@ figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_wind_pow.png")
 % FFT: PSI
 figNo = 2;
 f = myfigplot(figNo, [senIdx.PSI], wantedSims, nf, sensorDataFFT(:,wSpdIdx), titleArray, ...
-	ylabelArray, simNames(:,wSpdIdx), 0, xLimFftDef, {[0 60]}, 1);
+	ylabelArray, simNames, 0, xLimFftDef, {[0 60]}, 1);
 
 axes=findobj(f,'type','axes');
 xline(axes(1), P1, '--', {'1P'}, 'LabelOrientation', ...
@@ -265,7 +279,8 @@ figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_fftazi.png")];
 % Pitch, gen spd, foreaft pos, foreaft vel
 figNo = 3;
 f = myfigplot(figNo, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, ...
-	Xdata(:,1), Ydata(:,wSpdIdx), titleArray, ylabelArray, simNames(:,wSpdIdx), 1, xLimDef, 0, 1);
+	Xdata(:,1), Ydata(:,wSpdIdx), titleArray, ylabelArray, simNames, 1, ...
+	xLimDef, {[0 15],[350 450],[0 25],[-3 3]}, 1);
 axes=findobj(f,'type','axes');
 legend(axes(4), 'Location', 'southeast')
 
@@ -273,27 +288,28 @@ figArray = [figArray f];
 figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_th_w_py_vy.png")];
 
 
-% FFT: Pitch, gen spd, foreaft pos, foreaft vel
+% FFT: foreaft pos
 figNo = 4;
-f = myfigplot(figNo, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, ...
-	nf, sensorDataFFT(:,wSpdIdx), titleArray, ylabelArray, simNames(:,wSpdIdx), 0, ...
-	xLimFftDef, {[0 0.3], [0 2],[0 0.4],[0 0.1]}, 1);
+f = myfigplot(figNo, [senIdx.UyKF], wantedSims, ...
+	nf, sensorDataFFT(:,wSpdIdx), titleArray, ylabelArray, simNames, 0, ...
+	xLimFftDef, {[0 0.4], [0 2],[0 0.4],[0 0.1]}, 1);
 
 % Pull axes from previous figure.
 axes=findobj(f,'type','axes');
-xline(axes(4), P1, '--', {'1P'}, 'LabelOrientation', ...
+xline(axes, P1, '--', {'1P'}, 'LabelOrientation', ...
 			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
-% xline(axes(3), P3, '--', {'3P'}, 'LabelOrientation', ...
-% 			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+xline(axes, P3, '--', {'3P'}, 'LabelOrientation', ...
+			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+legend(axes, 'Location', 'north')
 
-annotation(f, 'textarrow',[0.25 0.18],[0.9 0.88],'String','1st mode');
+annotation(f, 'textarrow',[0.25 0.18],[0.85 0.83],'String','1st mode');
 
 figArray = [figArray f];
-figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_fft_th_w_py_vy.png")];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_fft_py.png")];
 
 
 
-% FIGURE SET 2
+% FIGURE SET: LQI vs. FLC detuned
 % --------------------------
 
 % (EDIT)
@@ -305,121 +321,187 @@ P1 = 0.174; P3 = 0.522; % Hz
 % Pitch, gen spd, foreaft pos, foreaft vel
 figNo = 10;
 f = myfigplot(figNo, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, ...
-	Xdata(:,1), Ydata(:,wSpdIdx), titleArray, ylabelArray, simNames(:,wSpdIdx), 1, xLimDef, 0, 1);
+	Xdata(:,1), Ydata(:,wSpdIdx), titleArray, ylabelArray, simNames, 1, ...
+	xLimDef, {[7 12],[375 425],[9 15],[-0.6 0.6]}, 1);
 
 figArray = [figArray f];
 figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_th_w_py_vy.png")];
 
 
-% FFT: Pitch, gen spd, foreaft pos, foreaft vel
+% FFT: Pitch, gen spd, foreaft pos
 figNo = 11;
+f = myfigplot(figNo, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF], wantedSims, ...
+	nf, sensorDataFFT(:,wSpdIdx), titleArray, ylabelArray, simNames, 0, ...
+	[0 0.1], {[0 0.25], [0 2.5],[0 0.35],[0 0.1]}, 1);
+
+% Pull axes from previous figure.
+axes=findobj(f,'type','axes');
+xline(axes(3), P1, '--', {'1P'}, 'LabelOrientation', ...
+			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+xline(axes(2), P3, '--', {'3P'}, 'LabelOrientation', ...
+			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+
+figArray = [figArray f];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_fft_th_w_py.png")];
+
+
+% Time ZOOM: Pitch, gen spd, foreaft vel
+figNo = 12;
+f = myfigplot(figNo, [senIdx.Pi1, senIdx.OmGen, senIdx.UyKF], wantedSims, ...
+	Xdata(:,1), Ydata(:,wSpdIdx), titleArray, ylabelArray, simNames, 1, [160 260], 0, 1);
+axes=findobj(f,'type','axes');
+legend(axes(3), 'Location', 'southeast')
+
+annotation(f, 'textarrow',[0.36 0.42],[0.13 0.17],'String','2nd mode oscillations');
+annotation(f, 'textarrow',[0.51 0.45],[1-0.15 1-0.19],'String','2nd mode oscillations');
+
+figArray = [figArray f];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_zoom_th_w_vy.png")];
+
+
+% Y-axis ZOOM: FFT - Pitch, foreaft vel
+figNo = 13;
+f = myfigplot(figNo, [senIdx.Pi1, senIdx.UyKF], wantedSims, ...
+	nf, sensorDataFFT(:,wSpdIdx), titleArray, ylabelArray, simNames, 0, ...
+	xLimFftDef, {[0 0.04], [0 0.02]}, 1);
+
+% Pull axes from previous figure.
+axes=findobj(f,'type','axes');
+xline(axes(2), P1, '--', {'1P'}, 'LabelOrientation', ...
+			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+% xline(axes(3), P1, '--', {'1P'}, 'LabelOrientation', ...
+% 			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+xline(axes(1), P1, '--', {'1P'}, 'LabelOrientation', ...
+			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+xline(axes(2), P3, '--', {'3P'}, 'LabelOrientation', ...
+			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+% xline(axes(3), P3, '--', {'3P'}, 'LabelOrientation', ...
+% 			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+xline(axes(1), P3, '--', {'3P'}, 'LabelOrientation', ...
+			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+legend(axes(2),'Location','best')
+
+annotation(f, 'textarrow',[0.70 0.74],[0.79 0.72],'String','2nd mode');
+annotation(f, 'textarrow',[0.67 0.73],[0.38 0.27],'String','2nd mode');
+
+figArray = [figArray f];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_zoom_fft_th_vy.png")];
+
+
+%% 12 and 26 m/s
+
+
+% 12, 16 and 26 m/s
+% --------------------------
+
+
+% Wind speed index:
+% 1 = 12 m/s
+% 2 = 16 m/s
+% 3 = 26 m/s
+wSpdIdx = 1;
+
+% (EDIT)
+wantedSims = [1 2 3];
+
+
+% The 1P and 3P frequencies as observed in the Rotor Azimuth plot
+P1 = 0.174; P3 = 0.522; % Hz
+
+% Power, pitch, gen spd, foreaft pos, foreaft vel
+figNo = 20;
+f = myfigplot(figNo, [senIdx.Power, senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, ...
+	Xdata(:,1), Ydata(:,wSpdIdx), titleArray, ylabelArray, simNames, 1, ...
+	xLimDef, {[6000 8500],[-4 6],[375 425],[12 23],[-1 1]}, 1);
+axes=findobj(f,'type','axes');
+legend(axes(5), 'Location', 'southeast')
+
+figArray = [figArray f];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_pow_th_w_py_vy.png")];
+
+
+% FFT: Pitch angle, omgen, foreaft pos, vel
+figNo = 21;
 f = myfigplot(figNo, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, ...
-	nf, sensorDataFFT(:,wSpdIdx), titleArray, ylabelArray, simNames(:,wSpdIdx), 0, ...
-	xLimFftDef, {[0 0.3], [0 2],[0 0.4],[0 0.1]}, 1);
+	nf, sensorDataFFT(:,wSpdIdx), titleArray, ylabelArray, simNames, 0, ...
+	[0 0.1], {[0 0.85],[0 2.5],[0 0.7],[0 0.1]}, 1);
 
 % Pull axes from previous figure.
 axes=findobj(f,'type','axes');
 xline(axes(4), P1, '--', {'1P'}, 'LabelOrientation', ...
 			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
-xline(axes(3), P3, '--', {'3P'}, 'LabelOrientation', ...
+xline(axes(4), P3, '--', {'3P'}, 'LabelOrientation', ...
 			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
+
+% annotation(f, 'textarrow',[0.25 0.18],[0.85 0.83],'String','1st mode');
 
 figArray = [figArray f];
 figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_fft_th_w_py_vy.png")];
 
 
-% Time ZOOM: Pitch, gen spd, foreaft pos, foreaft vel
-figNo = 12;
-f = myfigplot(figNo, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, ...
-	Xdata(:,1), Ydata(:,wSpdIdx), titleArray, ylabelArray, simNames(:,wSpdIdx), 1, [160 260], 0, 1);
-axes=findobj(f,'type','axes');
-legend(axes(4), 'Location', 'southeast')
+% 16 m/s and 26 m/s
+% --------------------------
 
-annotation(f, 'textarrow',[0.35 0.41],[0.13 0.16],'String','2nd mode oscillations');
+
+% Wind speed index:
+% 1 = 12 m/s
+% 2 = 16 m/s
+% 3 = 26 m/s
+wSpdIdx = 3;
+
+% (EDIT)
+wantedSims = [1 3];
+
+
+% The 1P and 3P frequencies as observed in the Rotor Azimuth plot
+P1 = 0.161; P3 = 0.483; % Hz
+% Power, pitch, gen spd, foreaft pos, foreaft vel
+figNo = 30;
+f = myfigplot(figNo, [senIdx.Power, senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, ...
+	Xdata(:,1), Ydata(:,wSpdIdx), titleArray, ylabelArray, simNames, 1, ...
+	xLimDef, {[6000 8500],[20 28],[355 385],[7.5 10],[-0.5 0.5]}, 1);
+axes=findobj(f,'type','axes');
+legend(axes(5), 'Location', 'southeast')
 
 figArray = [figArray f];
-figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_zoom_th_w_py_vy.png")];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_pow_th_w_py_vy.png")];
 
 
-% Y-axis ZOOM: FFT - Pitch, gen spd, foreaft pos, foreaft vel
-figNo = 13;
+% FFT: Pitch angle, omgen, foreaft pos, vel
+figNo = 31;
 f = myfigplot(figNo, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, ...
-	nf, sensorDataFFT(:,wSpdIdx), titleArray, ylabelArray, simNames(:,wSpdIdx), 0, ...
-	xLimFftDef, {[0 0.04], [0 0.6],[0 0.1],[0 0.02]}, 1);
+	nf, sensorDataFFT(:,wSpdIdx), titleArray, ylabelArray, simNames, 0, ...
+	xLimFftDef, {[0 0.5],[0 1],[0 0.2],[0 0.05]}, 1);
 
 % Pull axes from previous figure.
 axes=findobj(f,'type','axes');
 xline(axes(4), P1, '--', {'1P'}, 'LabelOrientation', ...
 			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
-xline(axes(3), P1, '--', {'1P'}, 'LabelOrientation', ...
-			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
-xline(axes(1), P1, '--', {'1P'}, 'LabelOrientation', ...
-			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
 xline(axes(4), P3, '--', {'3P'}, 'LabelOrientation', ...
 			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
-xline(axes(3), P3, '--', {'3P'}, 'LabelOrientation', ...
-			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
-xline(axes(1), P3, '--', {'3P'}, 'LabelOrientation', ...
-			'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
-legend(axes(4),'Location','best')
-
-annotation(f, 'textarrow',[0.70 0.74],[0.89 0.84],'String','2nd mode');
-annotation(f, 'textarrow',[0.65 0.73],[0.24 0.18],'String','2nd mode');
+legend(axes(4), 'Location', 'north')
+% annotation(f, 'textarrow',[0.25 0.18],[0.85 0.83],'String','1st mode');
 
 figArray = [figArray f];
-figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_zoom_fft_th_w_py_vy.png")];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_fft_th_w_py_vy.png")];
 
-%% OTHER PLOTTING SECTION
 
-% % Pitch reference and pitch reference derivative
-% nt = Xdata{1,1};
-% 
-% figSize.one =	[1 0.25 700 300];
-% figSize.two =	[1 0.25 700 400];
-% figSize.three = [1 0.25 700 550];
-% figSize.four =	[1 0.25 700 670];
-% 
-% f = myfig(1000, figSize.two);
-% subplot(211)
-% plot(nt, Ydata{1,2}(:,senIdx.Vhfree))
-% % hold on
-% % plot(nt, Ydata{1,1}(:,senIdx.Power))
-% % plot(nt, Ydata{1,1}(:,senIdx.OmGen))
-% % plot(nt, Ydata{1,1}(:,senIdx.PSI))
-% xlim([-1 1000])
-% % ylim([-3 10])
-% title('LQI pitch angle reference', 'FontSize', fontSize.title, 'interpreter','latex')
-% legend('$\theta$', '$\theta_{deriv}$', 'FontSize', fontSize.leg, 'interpreter','latex')
-% ylabel(["Angle [deg]", "Angle/s [deg/s]"], 'FontSize', fontSize.label, 'interpreter','latex')
-% xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
-% 
-% subplot(223)
-% plot(nt, simData.getElement('u_bar_thRef_lqi').Values.Data)
-% hold on
-% plot(nt, simData.getElement('u_bar_thRef_deriv_lqi').Values.Data)
-% tstart = -1; tend = 50; % Xlim start for zoom 2
-% title(sprintf('Zoom T = %.0f:%.0f s',tstart, tend), 'FontSize', 12, 'interpreter','latex')
-% xlim([tstart tend])
-% % legend('$\theta$', '$\theta_{deriv}$', 'FontSize', fontSize.leg, 'interpreter','latex')
-% ylabel(["Angle [deg]", "Angle/s [deg/s]"], 'FontSize', fontSize.label, 'interpreter','latex')
-% xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
-% 
-% subplot(224)
-% plot(nt, simData.getElement('u_bar_thRef_lqi').Values.Data)
-% hold on
-% plot(nt, simData.getElement('u_bar_thRef_deriv_lqi').Values.Data)
-% tstart = 295; tend = 360; % Xlim start for zoom 2
-% xline(300, '--', {'vfree', 'step'}, 'interpreter','latex', 'LabelOrientation', ...
-% 				'horizontal', 'LabelVerticalAlignment','top', 'HandleVisibility','off');
-% title(sprintf('Zoom T = %.0f:%.0f s',tstart, tend), 'FontSize', 12, 'interpreter','latex')
-% xlim([tstart tend])
-% ylim([-1 4])
-% % legend('$\theta$', '$\theta_{deriv}$', 'location', 'southeast', 'FontSize', fontSize.leg, 'interpreter','latex')
-% ylabel(["Angle [deg]", "Angle/s [deg/s]"], 'FontSize', fontSize.label, 'interpreter','latex')
-% xlabel("Time [s]", 'FontSize', fontSize.labelSmall, 'interpreter','latex')
-% 
-% figArray = [figArray f];
-% figNameArray = [figNameArray "01_pitch"];
+%% Data analysis
+
+% simNames= ["LQI"
+% 			"LQI (OP 12 m/s par.)"
+% 			"LQI (OP 26 m/s par.)"
+% 			"FLC PI w.o. FATD"
+% 			"FLC PI detuned"
+% 			"FLC PI w. FATD"
+% 			];
+
+wSpdIdx = 2;
+
+data.LQI = Ydata(1,wSpdIdx);
+data.FLC = Ydata(4,wSpdIdx);
+data.FLCdetuned = Ydata(5,wSpdIdx);
+
 
 
 
@@ -436,4 +518,4 @@ createNewFolder = 0;
 % I set the name of the folder where the images are saved to the .mat file
 % name:
 resolution = 400;
-myfigexport(figSaveDir, figArray, figNameArray, createNewFolder, "NoName", resolution)
+myfigexport(figSaveDir, figArray, figNameArray, "false", "NoName", resolution)
