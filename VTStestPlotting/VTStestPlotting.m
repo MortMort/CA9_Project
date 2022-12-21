@@ -146,8 +146,10 @@ clc; clear; close all;
 
 matFileName = "VTSintData";
 if ispc
+	% Windoes computer
 	load(strcat("c:\Users\Mrotr\OneDrive - Aalborg Universitet\Control and Automation\3. Semester\POSC\Project\", matFileName));
 else
+	% My mac
 	load(strcat("/Users/martin/Library/CloudStorage/OneDrive-AalborgUniversitet/Control and Automation/3. Semester/POSC/Project/", matFileName));
 end
 
@@ -178,20 +180,44 @@ dimYdata = size(Ydata);
 % Create frequency indexes for ffts
 Ts = 0.04;				% Sampling period    
 Fs = 1/Ts;				% Sampling frequency
-for nn = 1:size(Ydata,1)
-	for ii = 1:size(Ydata,2)
-		L{nn,ii} = length(Xdata{nn,ii});	% Number of samples
-		nf{nn,ii} = Fs.*(0:(L{nn,ii}/2))/L{nn,ii};	% Frequency index
-	end
-end
+% for nn = 1:size(Ydata,1)
+% 	for ii = 1:size(Ydata,2)
+% 		L{nn,ii} = length(Xdata{nn,ii});	% Number of samples
+% 		nf{nn,ii} = Fs.*(0:(L{nn,ii}/2))/L{nn,ii};	% Frequency index
+% 	end
+% end
 
 % Create ffts
 for nn = 1:size(Ydata,1)
 	for ii = 1:size(Ydata,2)
-		Y = abs(fft(Ydata{nn,ii}(:,sensorIDs)))/L{nn,ii};
+		L{nn,ii} = length(Xdata{nn,ii});	% Number of samples
+		N = 2^nextpow2(L{nn,ii});			% Length of fourier window (i pad with zeros!)
+% 		N = L{nn,ii};
+		nf{nn,ii} = Fs.*(0:((N-1)/2))/N;	% Frequency index
+		
+		% Applying hamming window to whole signal:
+		dataWindowed = Ydata{nn,ii}(:,sensorIDs).*hamming(L{nn,ii},'periodic');
+		% Signal with no window
+		dataNoWindow = Ydata{nn,ii}(:,sensorIDs);
+		
+		% Removing mean from data then applying window
+		dataWinNoBias = (Ydata{nn,ii}(:,sensorIDs)-mean(Ydata{nn,ii}(:,sensorIDs))).*hamming(L{nn,ii},'periodic');
+		% Removing mean from data and not using a window
+		dataNoWinNoBias = dataNoWindow-mean(dataNoWindow);
+		
+		Y = abs(fft(dataWinNoBias, N))/L{nn,ii};
 		sensorDataFFT{nn,ii}(:,sensorIDs) = Y(1:((end+1)/2),:); % Only one half of fft (up to nyquist frequency)
 	end
 end
+
+% Testing
+% myfig(-1);
+% plot(dataNoWindow(:,1))
+% hold on
+% plot(dataNoWinNoBias(:,1))
+
+
+
 
 
 %% 16 m/s compare Plotting
@@ -263,7 +289,7 @@ figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_wind_pow.png")
 % FFT: PSI
 figNo = 2;
 f = myfigplot(figNo, [senIdx.PSI], wantedSims, nf, sensorDataFFT(:,wSpdIdx), titleArray, ...
-	ylabelArray, simNames, 0, xLimFftDef, {[0 60]}, 1);
+	ylabelArray, simNames, 0, xLimFftDef, {[0 30]}, 1);
 
 axes=findobj(f,'type','axes');
 xline(axes(1), P1, '--', {'1P'}, 'LabelOrientation', ...
@@ -292,7 +318,7 @@ figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_th_w_py_vy.png
 figNo = 4;
 f = myfigplot(figNo, [senIdx.UyKF], wantedSims, ...
 	nf, sensorDataFFT(:,wSpdIdx), titleArray, ylabelArray, simNames, 0, ...
-	xLimFftDef, {[0 0.4], [0 2],[0 0.4],[0 0.1]}, 1);
+	xLimFftDef, {[0 0.3], [0 2],[0 0.4],[0 0.1]}, 1);
 
 % Pull axes from previous figure.
 axes=findobj(f,'type','axes');
@@ -332,7 +358,7 @@ figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_th_w_py_vy.png
 figNo = 11;
 f = myfigplot(figNo, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF], wantedSims, ...
 	nf, sensorDataFFT(:,wSpdIdx), titleArray, ylabelArray, simNames, 0, ...
-	[0 0.1], {[0 0.25], [0 2.5],[0 0.35],[0 0.1]}, 1);
+	[0 0.1], {[0 0.12], [0 1.25],[0 0.23],[0 0.1]}, 1);
 
 % Pull axes from previous figure.
 axes=findobj(f,'type','axes');
@@ -363,7 +389,7 @@ figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_zoom_th_w_vy.p
 figNo = 13;
 f = myfigplot(figNo, [senIdx.Pi1, senIdx.UyKF], wantedSims, ...
 	nf, sensorDataFFT(:,wSpdIdx), titleArray, ylabelArray, simNames, 0, ...
-	xLimFftDef, {[0 0.04], [0 0.02]}, 1);
+	xLimFftDef, {[0 0.025], [0 0.013]}, 1);
 
 % Pull axes from previous figure.
 axes=findobj(f,'type','axes');
@@ -424,7 +450,7 @@ figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_pow_th_w_py_vy
 figNo = 21;
 f = myfigplot(figNo, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, ...
 	nf, sensorDataFFT(:,wSpdIdx), titleArray, ylabelArray, simNames, 0, ...
-	[0 0.1], {[0 0.85],[0 2.5],[0 0.7],[0 0.1]}, 1);
+	[0 0.1], {[0 0.4],[0 1.3],[0 0.45],[0 0.05]}, 1);
 
 % Pull axes from previous figure.
 axes=findobj(f,'type','axes');
@@ -471,7 +497,7 @@ figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_pow_th_w_py_vy
 figNo = 31;
 f = myfigplot(figNo, [senIdx.Pi1, senIdx.OmGen, senIdx.yKF, senIdx.UyKF], wantedSims, ...
 	nf, sensorDataFFT(:,wSpdIdx), titleArray, ylabelArray, simNames, 0, ...
-	xLimFftDef, {[0 0.5],[0 1],[0 0.2],[0 0.05]}, 1);
+	xLimFftDef, {[0 0.25],[0 0.6],[0 0.07],[0 0.0275]}, 1);
 
 % Pull axes from previous figure.
 axes=findobj(f,'type','axes');
