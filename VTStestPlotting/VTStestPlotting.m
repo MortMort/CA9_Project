@@ -666,6 +666,8 @@ myfigexport(figSaveDir, figArray, figNameArray, "false", "NoName", resolution)
 % ---------------------------------
 
 function del = mydel(data, nt)
+	% Calculating 1 Hz damege equivalent loads with rainflow count
+
 	% Based on steel with Wohler constant of 4
 	% Based on 1 Hz equivalent
 
@@ -673,10 +675,10 @@ function del = mydel(data, nt)
 	feq = 1;						% [Hz] - 1 Hz equivalent
 	Neq = 1/feq * nt(end);		% Product of 1/feq and the simulation time
 
-
+	% Calculating rainflow count
 	rainflowOut = rainflow(data, nt);
 
-	% Rainflow Count table
+	% Creating Rainflow Count table
 	rfT = array2table(rainflowOut, 'VariableNames',{'Count','Range','Mean','Start','End'});
 	
 	sum = 0;
@@ -690,6 +692,7 @@ function del = mydel(data, nt)
 end
 
 function [pitchFiltered, pitchChngSum] = mypitchsum(data, filter)
+	% Filtering blade pitch data and calculating sum of pitch change
 	
 	% Filter signal
 	pitchFiltered = filtfilt(filter,data);
@@ -710,6 +713,10 @@ function out = myfft(data, nt, Fs)
 	% - Padding of same length as singnal length
 	% - No bias removed through mean of signal
 	% - Windowed with a hamming window
+	% INPUTS
+	%	data	: Time series data
+	%	nt		: time index
+	%	Fs		: Sample time
 
 	% Create ffts
 	L = length(data);	% Number of samples
