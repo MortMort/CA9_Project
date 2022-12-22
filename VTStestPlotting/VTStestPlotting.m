@@ -166,7 +166,7 @@ end
 
 % Init sensor arrays, names, and such
 % sensorSetupInit_senSetup1 % Older setup with fewer sensors
-sensorSetupInit_senSetup2
+sensorSetupInit_senSetup3
 
 
 
@@ -414,6 +414,45 @@ figArray = [figArray f];
 figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_zoom_fft_th_vy.png")];
 
 
+% Bending moments of tower
+figNo = 14;
+f = myfigplot(figNo, [senIdx.Mxt17], wantedSims, Xdata, Ydata(:,wSpdIdx), ...
+	titleArray, ylabelArray, simNames, 1, 0, 0, 1);
+
+% Pull axes from previous figure.
+axes=findobj(f,'type','axes');
+legend(axes,'Location','southeast')
+
+figArray = [figArray f];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_mxt17.png")];
+
+
+% FFT: Bending moments of tower zoom 1
+figNo = 15;
+f = myfigplot(figNo, [senIdx.Mxt17], wantedSims, nf, sensorDataFFT, ...
+	titleArray, ylabelArray, simNames, 0, [0 0.1], 0, 1);
+
+% Pull axes from previous figure.
+axes=findobj(f,'type','axes');
+legend(axes,'Location','northeast')
+
+figArray = [figArray f];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_fft_mxt17_z1.png")];
+
+% FFT: Bending moments of tower zoom 2
+figNo = 16;
+f = myfigplot(figNo, [senIdx.Mxt17], wantedSims, nf, sensorDataFFT, ...
+	titleArray, ylabelArray, simNames, 0, [.4 .6], 0, 1);
+
+% Pull axes from previous figure.
+axes=findobj(f,'type','axes');
+legend(axes, 'Location','northeast')
+
+figArray = [figArray f];
+figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_fft_mxt17_z2.png")];
+
+
+
 %% 12 and 26 m/s
 
 
@@ -522,14 +561,88 @@ figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_fft_th_w_py_vy
 % 			"FLC PI w. FATD"
 % 			];
 
+% I am extracting data for only 16 m/s
+% 2 = 16 m/s
 wSpdIdx = 2;
 
-data.LQI = Ydata(1,wSpdIdx);
-data.FLC = Ydata(4,wSpdIdx);
-data.FLCdetuned = Ydata(5,wSpdIdx);
+data.LQI		= Ydata{1,wSpdIdx};
+data.FLCdetuned	= Ydata{5,wSpdIdx};
+data.FLC		= Ydata{4,wSpdIdx};
+
+data.nt			= Xdata{1,1}; % Time indexes are the same for aaaaall simulations
 
 
+% The DELs for 16 m/s
+Ldel.LQI		= mydel(data.LQI(:,senIdx.Mxt17), data.nt);
+Ldel.FLCdetuned = mydel(data.FLCdetuned(:,senIdx.Mxt17), data.nt);
+Ldel.FLC		= mydel(data.FLC(:,senIdx.Mxt17), data.nt)
 
+%% Pitch angle filtering and sum of change
+
+% Creating the filter
+% ----------------------
+
+% Defining a fitting frequency 
+ws = 0.2;
+ws_equiv = ws/(Fs); 
+
+
+% Create filter
+d1 = designfilt("lowpassiir",FilterOrder=4, ...
+    HalfPowerFrequency=ws_equiv,DesignMethod="butter");
+
+% freqz(d1)
+
+% Both filtering and calculating the sum of blade pitch changes of the
+% blade pitch singal
+[Pi1filtered.LQI,			pi1ChngSum.LQI]			= mypitchsum(data.LQI(:,senIdx.Pi1), d1);
+[Pi1filtered.FLCdetuned,	pi1ChngSum.FLCdetuned]	= mypitchsum(data.FLCdetuned(:,senIdx.Pi1), d1);
+[Pi1filtered.FLC,			pi1ChngSum.FLC]			= mypitchsum(data.FLC(:,senIdx.Pi1), d1)
+
+% Plotting to give an impression of the result of the filtering
+myfig(100);
+subplot(311)
+plot(data.nt, data.LQI(:,senIdx.Pi1), 'LineWidth', 1.3)
+hold on
+plot(data.nt, Pi1filtered.LQI, 'LineWidth', 1.3)
+legend('Pitch angle 1 filtered', 'Pitch angle 1')
+xlim([0 100])
+title('LQI Pitch angle 1 filtered comparison zoomed at 0-100 s')
+
+subplot(312)
+plot(data.nt, data.FLCdetuned(:,senIdx.Pi1), 'LineWidth', 1.3)
+hold on
+plot(data.nt, Pi1filtered.FLCdetuned, 'LineWidth', 1.3)
+legend('Pitch angle 1 filtered', 'Pitch angle 1')
+xlim([0 100])
+title('Detuned FLC Pitch angle 1 filtered comparison zoomed at 0-100 s')
+
+subplot(313)
+plot(data.nt, data.FLC(:,senIdx.Pi1), 'LineWidth', 1.3)
+hold on
+plot(data.nt, Pi1filtered.FLC, 'LineWidth', 1.3)
+legend('Pitch angle 1 filtered', 'Pitch angle 1')
+xlim([0 100])
+title('FLC Pitch angle 1 filtered comparison zoomed at 0-100 s')
+
+myfig(101);
+plot(data.nt, Pi1filtered.LQI, 'LineWidth', 1.3)
+hold on
+plot(data.nt, Pi1filtered.FLCdetuned, 'LineWidth', 1.3)
+legend('LQI', 'Detuned FLC')
+xlim([0 300])
+title('FLC Pitch angle 1 filtered LQI vs detuned FLC zoomed at 0-100 s')
+
+
+dataFFT.LQI = sensorDataFFT{1,wSpdIdx};
+dataPi1FFT.LQI = myfft(Pi1filtered.LQI, data.nt, Fs)
+
+
+myfig(102);
+plot(nf, dataPi1FFT.LQI, 'LineWidth', 1.3)
+hold on
+plot(nf, dataFFT.LQI(:,senIdx.Pi1), 'LineWidth', 1.3)
+xlim([0 0.6])
 
 
 %% Export figures
@@ -545,3 +658,70 @@ createNewFolder = 0;
 % name:
 resolution = 400;
 myfigexport(figSaveDir, figArray, figNameArray, "false", "NoName", resolution)
+
+
+
+
+%% functions
+% ---------------------------------
+
+function del = mydel(data, nt)
+	% Based on steel with Wohler constant of 4
+	% Based on 1 Hz equivalent
+
+	wcSteel = 4;					% Wohler coefficient for steel	
+	feq = 1;						% [Hz] - 1 Hz equivalent
+	Neq = 1/feq * nt(end);		% Product of 1/feq and the simulation time
+
+
+	rainflowOut = rainflow(data, nt);
+
+	% Rainflow Count table
+	rfT = array2table(rainflowOut, 'VariableNames',{'Count','Range','Mean','Start','End'});
+	
+	sum = 0;
+	
+	for ii = 1:length(rfT.Count)
+		sum = sum + rfT.Count(ii)*rfT.Range(ii)^wcSteel;
+	end
+	
+	% Damege equivalent load out
+	del = (sum/Neq)^(1/wcSteel);
+end
+
+function [pitchFiltered, pitchChngSum] = mypitchsum(data, filter)
+	
+	% Filter signal
+	pitchFiltered = filtfilt(filter,data);
+	
+	% Initialize sum variable
+	pitchChngSum = 0;
+	
+	% Sum all changes
+	for ii = 1:length(pitchFiltered)-1
+		pitchChngSum = pitchChngSum + abs(pitchFiltered(ii+1) - pitchFiltered(ii));
+	end
+
+end
+
+
+function out = myfft(data, nt, Fs)
+	% FFT with:
+	% - Padding of same length as singnal length
+	% - No bias removed through mean of signal
+	% - Windowed with a hamming window
+
+	% Create ffts
+	L = length(data);	% Number of samples
+	N = 2^nextpow2(L);			% Length of fourier window (i pad with zeros!)
+	nf = Fs.*(0:((N-1)/2))/N;	% Frequency index
+	
+	% Applying hamming window to whole signal:
+	dataWindowed = data.*hamming(L,'periodic');
+	
+	% Removing mean from data then applying window
+	dataWinNoBias = (data-mean(data)).*hamming(L,'periodic');
+	
+	Y = abs(fft(dataWinNoBias, N))/L;
+	out = Y(1:((end+1)/2),:); % Only one half of fft (up to nyquist frequency)
+end
