@@ -561,19 +561,44 @@ figNameArray = [figNameArray strcat(setupPrefix, string(figNo), "_fft_th_w_py_vy
 % 			"FLC PI w. FATD"
 % 			];
 
-% I am extracting data for only 16 m/s
+
 % 2 = 16 m/s
 wSpdIdx = 2;
+data.LQIv16_OP16	= Ydata{1,wSpdIdx};
+data.LQIv16_OP12	= Ydata{2,wSpdIdx};
+data.LQIv16_OP26	= Ydata{3,wSpdIdx};
+data.FLCdetuned		= Ydata{5,wSpdIdx};
+data.FLC			= Ydata{4,wSpdIdx};
 
-data.LQI		= Ydata{1,wSpdIdx};
-data.FLCdetuned	= Ydata{5,wSpdIdx};
-data.FLC		= Ydata{4,wSpdIdx};
+
+% 1 = 12 m/s
+wSpdIdx = 1;
+data.LQIv12_OP16	= Ydata{1,wSpdIdx};
+data.LQIv12_OP12	= Ydata{2,wSpdIdx};
+data.LQIv12_OP26	= Ydata{3,wSpdIdx};
+
+% 3 = 26 m/s
+wSpdIdx = 3;
+data.LQIv26_OP16	= Ydata{1,wSpdIdx};
+data.LQIv26_OP12	= Ydata{2,wSpdIdx};
+data.LQIv26_OP26	= Ydata{3,wSpdIdx};
+
+
 
 data.nt			= Xdata{1,1}; % Time indexes are the same for aaaaall simulations
 
 
 % The DELs for 16 m/s
-Ldel.LQI		= mydel(data.LQI(:,senIdx.Mxt17), data.nt);
+Ldel.LQIv16_OP16		= mydel(data.LQIv16_OP16(:,senIdx.Mxt17), data.nt);
+Ldel.LQIv16_OP12		= mydel(data.LQIv16_OP12(:,senIdx.Mxt17), data.nt);
+Ldel.LQIv16_OP26		= mydel(data.LQIv16_OP26(:,senIdx.Mxt17), data.nt);
+Ldel.LQIv12_OP16		= mydel(data.LQIv12_OP16(:,senIdx.Mxt17), data.nt);
+Ldel.LQIv12_OP12		= mydel(data.LQIv12_OP12(:,senIdx.Mxt17), data.nt);
+Ldel.LQIv12_OP26		= mydel(data.LQIv12_OP26(:,senIdx.Mxt17), data.nt);
+Ldel.LQIv26_OP16		= mydel(data.LQIv26_OP16(:,senIdx.Mxt17), data.nt);
+Ldel.LQIv26_OP12		= mydel(data.LQIv26_OP12(:,senIdx.Mxt17), data.nt);
+Ldel.LQIv26_OP26		= mydel(data.LQIv26_OP26(:,senIdx.Mxt17), data.nt);
+
 Ldel.FLCdetuned = mydel(data.FLCdetuned(:,senIdx.Mxt17), data.nt);
 Ldel.FLC		= mydel(data.FLC(:,senIdx.Mxt17), data.nt)
 
@@ -595,16 +620,43 @@ d1 = designfilt("lowpassiir",FilterOrder=4, ...
 
 % Both filtering and calculating the sum of blade pitch changes of the
 % blade pitch singal
-[Pi1filtered.LQI,			pi1ChngSum.LQI]			= mypitchsum(data.LQI(:,senIdx.Pi1), d1);
-[Pi1filtered.FLCdetuned,	pi1ChngSum.FLCdetuned]	= mypitchsum(data.FLCdetuned(:,senIdx.Pi1), d1);
-[Pi1filtered.FLC,			pi1ChngSum.FLC]			= mypitchsum(data.FLC(:,senIdx.Pi1), d1)
+[Pi1filtered.FLCdetuned,	pi1FiltChngSum.FLCdetuned]	= mypitchsum(data.FLCdetuned(:,senIdx.Pi1), d1);
+[Pi1filtered.FLC,			pi1FiltChngSum.FLC]			= mypitchsum(data.FLC(:,senIdx.Pi1), d1);
+
+[Pi1filtered.LQIv16_OP16,	pi1FiltChngSum.LQIv16_OP16]	= mypitchsum(data.LQIv16_OP16(:,senIdx.Pi1), d1);
+[Pi1filtered.LQIv16_OP12,	pi1FiltChngSum.LQIv16_OP12]	= mypitchsum(data.LQIv16_OP12(:,senIdx.Pi1), d1);
+[Pi1filtered.LQIv16_OP26,	pi1FiltChngSum.LQIv16_OP26]	= mypitchsum(data.LQIv16_OP26(:,senIdx.Pi1), d1);
+[Pi1filtered.LQIv12_OP16,	pi1FiltChngSum.LQIv12_OP16]	= mypitchsum(data.LQIv12_OP16(:,senIdx.Pi1), d1);
+[Pi1filtered.LQIv12_OP12,	pi1FiltChngSum.LQIv12_OP12]	= mypitchsum(data.LQIv12_OP12(:,senIdx.Pi1), d1);
+[Pi1filtered.LQIv12_OP26,	pi1FiltChngSum.LQIv12_OP26]	= mypitchsum(data.LQIv12_OP26(:,senIdx.Pi1), d1);
+[Pi1filtered.LQIv26_OP16,	pi1FiltChngSum.LQIv26_OP16]	= mypitchsum(data.LQIv26_OP16(:,senIdx.Pi1), d1);
+[Pi1filtered.LQIv26_OP12,	pi1FiltChngSum.LQIv26_OP12]	= mypitchsum(data.LQIv26_OP12(:,senIdx.Pi1), d1);
+[Pi1filtered.LQIv26_OP26,	pi1FiltChngSum.LQIv26_OP26]	= mypitchsum(data.LQIv26_OP26(:,senIdx.Pi1), d1)
+
+% Non-filtered blade pitch sum
+pi1ChngSum.FLCdetuned	= mychngsum(data.FLCdetuned(:,senIdx.Pi1));
+pi1ChngSum.FLC			= mychngsum(data.FLC(:,senIdx.Pi1));
+
+pi1ChngSum.LQIv16_OP16	= mychngsum(data.LQIv16_OP16(:,senIdx.Pi1));
+pi1ChngSum.LQIv16_OP12	= mychngsum(data.LQIv16_OP12(:,senIdx.Pi1));
+pi1ChngSum.LQIv16_OP26	= mychngsum(data.LQIv16_OP26(:,senIdx.Pi1));
+pi1ChngSum.LQIv12_OP16	= mychngsum(data.LQIv12_OP16(:,senIdx.Pi1));
+pi1ChngSum.LQIv12_OP12	= mychngsum(data.LQIv12_OP12(:,senIdx.Pi1));
+pi1ChngSum.LQIv12_OP26	= mychngsum(data.LQIv12_OP26(:,senIdx.Pi1));
+pi1ChngSum.LQIv26_OP16	= mychngsum(data.LQIv26_OP16(:,senIdx.Pi1));
+pi1ChngSum.LQIv26_OP12	= mychngsum(data.LQIv26_OP12(:,senIdx.Pi1));
+pi1ChngSum.LQIv26_OP26	= mychngsum(data.LQIv26_OP26(:,senIdx.Pi1))
+
+
+
+
 
 % Plotting to give an impression of the result of the filtering
 myfig(100);
 subplot(311)
-plot(data.nt, data.LQI(:,senIdx.Pi1), 'LineWidth', 1.3)
+plot(data.nt, data.LQIv16_OP16(:,senIdx.Pi1), 'LineWidth', 1.3)
 hold on
-plot(data.nt, Pi1filtered.LQI, 'LineWidth', 1.3)
+plot(data.nt, Pi1filtered.LQIv16_OP16, 'LineWidth', 1.3)
 legend('Pitch angle 1 filtered', 'Pitch angle 1')
 xlim([0 100])
 title('LQI Pitch angle 1 filtered comparison zoomed at 0-100 s')
@@ -626,7 +678,7 @@ xlim([0 100])
 title('FLC Pitch angle 1 filtered comparison zoomed at 0-100 s')
 
 myfig(101);
-plot(data.nt, Pi1filtered.LQI, 'LineWidth', 1.3)
+plot(data.nt, Pi1filtered.LQIv16_OP16, 'LineWidth', 1.3)
 hold on
 plot(data.nt, Pi1filtered.FLCdetuned, 'LineWidth', 1.3)
 legend('LQI', 'Detuned FLC')
@@ -635,14 +687,18 @@ title('FLC Pitch angle 1 filtered LQI vs detuned FLC zoomed at 0-100 s')
 
 
 dataFFT.LQI = sensorDataFFT{1,wSpdIdx};
-dataPi1FFT.LQI = myfft(Pi1filtered.LQI, data.nt, Fs)
+dataPi1FFT.LQI = myfft(Pi1filtered.LQIv16_OP16, data.nt, Fs)
 
 
 myfig(102);
-plot(nf, dataPi1FFT.LQI, 'LineWidth', 1.3)
+plot(nf{1,1}, dataPi1FFT.LQI, 'LineWidth', 1.3)
 hold on
-plot(nf, dataFFT.LQI(:,senIdx.Pi1), 'LineWidth', 1.3)
+plot(nf{1,1}, dataFFT.LQI(:,senIdx.Pi1), 'LineWidth', 1.3)
 xlim([0 0.6])
+
+
+% For 12 and 26 m/s
+
 
 
 %% Export figures
@@ -703,6 +759,18 @@ function [pitchFiltered, pitchChngSum] = mypitchsum(data, filter)
 	% Sum all changes
 	for ii = 1:length(pitchFiltered)-1
 		pitchChngSum = pitchChngSum + abs(pitchFiltered(ii+1) - pitchFiltered(ii));
+	end
+
+end
+
+function chngSum = mychngsum(data)
+
+	% Initialize sum variable
+	chngSum = 0;
+	
+	% Sum all changes
+	for ii = 1:length(data)-1
+		chngSum = chngSum + abs(data(ii+1) - data(ii));
 	end
 
 end

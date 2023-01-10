@@ -225,7 +225,7 @@ semilogx(rad2hz(wout), mag2db(squeeze(mag)))
 title('Linear model closed loop bode: theta -> vy')
 xlim([10^(-2) 0.3])
 ylim([-40 20])
-yline(10)
+yline(15)
 xline(0.034)
 ylabel('Magnitude [dB]')
 grid
@@ -778,11 +778,11 @@ LQIctrlParams = [Kpy Kvy Kp Ti]
 %% Export figures
 % ---------------------------------
 % figSaveDir = "H:\Offshore_TEMP\USERS\MROTR\wtLinWork";				% Windows type path
-% % figSaveDir = "/Users/martin/Documents/Git/Repos/CA9_Project/Modelling";	% Macos type path
-% createNewFolder = 1; % Folder name to save figures:
-% folderName = "figuerExport";
-% resolution = 400;
-% myfigexport(figSaveDir, figArray, figNameArray, createNewFolder, folderName, resolution)
+figSaveDir = "/Users/martin/Documents/Git/Repos/CA9_Project/Modelling";	% Macos type path
+createNewFolder = 1; % Folder name to save figures:
+folderName = "figuerExport2";
+resolution = 400;
+myfigexport(figSaveDir, figArray, figNameArray, createNewFolder, folderName, resolution)
 
 
 %% Save to a .mat file so i can use the data at home:
